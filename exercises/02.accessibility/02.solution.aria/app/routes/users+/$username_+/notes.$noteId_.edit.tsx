@@ -156,6 +156,7 @@ export default function NoteEdit() {
 						maxLength={titleMaxLength}
 						aria-invalid={titleHasErrors || undefined}
 						aria-describedby={titleErrorId}
+						autoFocus
 					/>
 					<div className="min-h-[32px] px-4 pb-3 pt-1">
 						<ErrorList id={titleErrorId} errors={fieldErrors?.title} />

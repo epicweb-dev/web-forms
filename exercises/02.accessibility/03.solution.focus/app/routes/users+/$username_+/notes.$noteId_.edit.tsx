@@ -6,7 +6,7 @@ import {
 	useLoaderData,
 	useNavigation,
 } from '@remix-run/react'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '~/components/floating-toolbar.tsx'
 import { Button } from '~/components/ui/button.tsx'
@@ -141,13 +141,6 @@ export default function NoteEdit() {
 		const formEl = formRef.current
 		if (!formEl) return
 		if (actionData?.status !== 'error') return
-		const allErrors = [
-			...(actionData.errors.formErrors?.filter(Boolean) ?? []),
-			...(Object.values(actionData.errors.fieldErrors ?? {})
-				?.flat()
-				.filter(Boolean) ?? []),
-		]
-		if (!allErrors.length) return
 
 		if (formEl.matches('[aria-invalid="true"]')) {
 			formEl.focus()
@@ -186,6 +179,7 @@ export default function NoteEdit() {
 						maxLength={titleMaxLength}
 						aria-invalid={titleHasErrors || undefined}
 						aria-describedby={titleErrorId}
+						autoFocus
 					/>
 					<div className="min-h-[32px] px-4 pb-3 pt-1">
 						<ErrorList id={titleErrorId} errors={fieldErrors?.title} />

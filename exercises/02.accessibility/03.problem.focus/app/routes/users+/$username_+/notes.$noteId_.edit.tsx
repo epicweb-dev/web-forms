@@ -142,7 +142,7 @@ export default function NoteEdit() {
 	//   (💰 so the dependency array should include the actionData).
 	// 💰 we only care to focus on an element if:
 	// - the formRef.current is truthy
-	// - the actionData has errors
+	// - the actionData is in an error status
 	// 🐨 if the formRef.current matches the query [aria-invalid="true"] then
 	// focus on the form otherwise, check formRef.current.elements and focus on
 	// the first element that matches the query [aria-invalid="true"]
@@ -172,6 +172,7 @@ export default function NoteEdit() {
 						maxLength={titleMaxLength}
 						aria-invalid={titleHasErrors || undefined}
 						aria-describedby={titleErrorId}
+						// 🐨 add autoFocus here
 					/>
 					<div className="min-h-[32px] px-4 pb-3 pt-1">
 						<ErrorList id={titleErrorId} errors={fieldErrors?.title} />

@@ -39,6 +39,27 @@
     },
     {
       "path": "exercises/02.accessibility/03.solution.focus"
+    },
+    {
+      "path": "exercises/03.schema-validation/01.problem.zod"
+    },
+    {
+      "path": "exercises/03.schema-validation/01.solution.zod"
+    },
+    {
+      "path": "exercises/03.schema-validation/02.problem.conform-action"
+    },
+    {
+      "path": "exercises/03.schema-validation/02.solution.conform-action"
+    },
+    {
+      "path": "exercises/03.schema-validation/03.problem.conform-form"
+    },
+    {
+      "path": "exercises/03.schema-validation/03.solution.conform-form"
+    },
+    {
+      "path": "exercises/09.finished/01.solution.finished"
     }
   ]
 }

@@ -7,8 +7,5 @@ wrote looks pretty nice and reusable.
 a reusable `useFocusInvalid` hook. I should be able to use it like this:
 
 ```tsx
-useFocusInvalid(
-	formRef.current,
-	actionData?.status === 'error' ? actionData.errors : null,
-)
+useFocusInvalid(formRef.current, hasErrors)
 ```
