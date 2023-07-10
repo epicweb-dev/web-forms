@@ -1,0 +1,44 @@
+{
+  "files": [],
+  "exclude": [
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "exercises/01.form-validation/01.problem.form-validation"
+    },
+    {
+      "path": "exercises/01.form-validation/01.solution.form-validation"
+    },
+    {
+      "path": "exercises/01.form-validation/02.problem.server-validation"
+    },
+    {
+      "path": "exercises/01.form-validation/02.solution.server-validation"
+    },
+    {
+      "path": "exercises/01.form-validation/03.problem.no-validate"
+    },
+    {
+      "path": "exercises/01.form-validation/03.solution.no-validate"
+    },
+    {
+      "path": "exercises/02.accessibility/01.problem.labels"
+    },
+    {
+      "path": "exercises/02.accessibility/01.solution.labels"
+    },
+    {
+      "path": "exercises/02.accessibility/02.problem.aria"
+    },
+    {
+      "path": "exercises/02.accessibility/02.solution.aria"
+    },
+    {
+      "path": "exercises/02.accessibility/03.problem.focus"
+    },
+    {
+      "path": "exercises/02.accessibility/03.solution.focus"
+    }
+  ]
+}
