@@ -29,7 +29,6 @@ export const links: LinksFunction = () => {
 }
 
 export async function loader() {
-	// throw new Error('🐨 root loader error')
 	return json({ username: os.userInfo().username, ENV: getEnv() })
 }
 
@@ -54,7 +53,6 @@ function Document({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	// throw new Error('🐨 root component error')
 	const data = useLoaderData<typeof loader>()
 	return (
 		<Document>

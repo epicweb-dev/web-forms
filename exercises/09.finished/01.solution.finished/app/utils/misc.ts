@@ -1,4 +1,4 @@
-import { type ClassValue, clsx } from 'clsx'
+import { clsx, type ClassValue } from 'clsx'
 import { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 

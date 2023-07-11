@@ -24,7 +24,11 @@ export async function loader({ params }: DataFunctionArgs) {
 		throw new Response('Note note found', { status: 404 })
 	}
 	return json({
-		note: { title: note.title, content: note.content },
+		note: {
+			title: note.title,
+			content: note.content,
+			images: note.images.map(i => ({ id: i.id, altText: i.altText })),
+		},
 	})
 }
 
@@ -48,6 +52,17 @@ export default function NoteRoute() {
 				<p className="whitespace-break-spaces text-sm md:text-lg">
 					{data.note.content}
 				</p>
+				<ul className="flex flex-wrap gap-5 py-5">
+					{data.note.images.map(image => (
+						<li key={image.id}>
+							<img
+								src={`/resources/images/${image.id}`}
+								alt={image.altText ?? ''}
+								className="h-32 w-32 rounded-lg object-cover"
+							/>
+						</li>
+					))}
+				</ul>
 			</div>
 			<div className={floatingToolbarClassName}>
 				<Form method="post">
