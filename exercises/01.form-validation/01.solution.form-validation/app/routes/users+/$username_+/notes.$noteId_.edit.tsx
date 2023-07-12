@@ -12,7 +12,7 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
 import { invariantResponse } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
@@ -32,16 +32,15 @@ export async function loader({ params }: DataFunctionArgs) {
 }
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const title = formData.get('title')
 	const content = formData.get('content')
 	invariantResponse(typeof title === 'string', 'title must be a string')
 	invariantResponse(typeof content === 'string', 'content must be a string')
 
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: { title, content },
-	})
+	await updateNote({ id: params.noteId, title, content })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -56,36 +55,39 @@ export default function NoteEdit() {
 		navigation.formAction === formAction
 
 	return (
-		<Form
-			method="post"
-			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
-		>
-			<div className="flex flex-col gap-1">
-				<div>
-					{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
-					<Label>Title</Label>
-					<Input
-						name="title"
-						defaultValue={data.note.title}
-						required
-						minLength={1}
-						maxLength={100}
-					/>
+		<div className="absolute inset-0">
+			<Form
+				method="post"
+				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+			>
+				<div className="flex flex-col gap-1">
+					<div>
+						{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
+						<Label>Title</Label>
+						<Input
+							name="title"
+							defaultValue={data.note.title}
+							required
+							minLength={1}
+							maxLength={100}
+						/>
+					</div>
+					<div>
+						{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
+						<Label>Content</Label>
+						<Textarea
+							name="content"
+							defaultValue={data.note.content}
+							required
+							minLength={1}
+							maxLength={10000}
+						/>
+					</div>
 				</div>
-				<div>
-					{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
-					<Label>Content</Label>
-					<Textarea
-						name="content"
-						defaultValue={data.note.content}
-						required
-						minLength={1}
-						maxLength={10000}
-					/>
-				</div>
-			</div>
+			</Form>
 			<div className={floatingToolbarClassName}>
 				<Button variant="destructive" type="reset">
+					{/* 🦉 NOTE: this button doesn't work right now, we'll get to that in the accessibility exercise */}
 					Reset
 				</Button>
 				<StatusButton
@@ -96,7 +98,7 @@ export default function NoteEdit() {
 					Submit
 				</StatusButton>
 			</div>
-		</Form>
+		</div>
 	)
 }
 

@@ -11,13 +11,27 @@ not associated with each other. So it should be something like this:
 </div>
 ```
 
-Please find Kody in <InlineFile file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx" />
-and make sure the label and input have an association via the `id` and `htmlFor`
-props.
-
 You can test out whether your changes fixed the problem by clicking on the label
 text inside the input. If the input is focused, then you've done it! If not,
 then there's still more work to do.
 
+Another issue we've got is the "Reset" button doesn't work. This is because, due
+to styling requirements, our Reset button is outside of the `<form>` element.
+So we need to communicate to the browser that the Reset button is associated
+with the form. Similar to how you associate labels and inputs, we use IDs. We
+can do this by adding a `form` attribute to the button:
+
+```tsx
+<button form="form-id" type="reset">
+	Reset
+</button>
+```
+
+Please find Kody in <InlineFile file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx" />
+and make sure the label and input have an association via the `id` and `htmlFor`
+props and the reset and submit buttons are properly associated to the form via
+the `id` and `form` props.
+
 - [📜 `for` attribute on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/for)
 - [📜 `htmlFor` attribute in React](https://react.dev/reference/react-dom/components/common#common-props)
+- [📜 button `form` attributes on MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#attributes)

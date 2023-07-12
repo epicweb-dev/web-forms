@@ -12,7 +12,7 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
 import { invariantResponse } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
@@ -32,6 +32,8 @@ export async function loader({ params }: DataFunctionArgs) {
 }
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const title = formData.get('title')
 	const content = formData.get('content')
@@ -44,10 +46,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 	// 🐨 if there are any errors, then return a json response with the errors
 	// and a 400 status code
 
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: { title, content },
-	})
+	await updateNote({ id: params.noteId, title, content })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -67,41 +66,42 @@ export default function NoteEdit() {
 	// 🐨 get the fieldErrors here from the actionData
 
 	return (
-		<Form
-			// 🐨 to test out the server-side validation, you need to disable the
-			// client-side validation. You can do that by adding:
-			// noValidate
-			method="post"
-			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
-		>
-			<div className="flex flex-col gap-1">
-				<div>
-					{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
-					<Label>Title</Label>
-					<Input
-						name="title"
-						defaultValue={data.note.title}
-						required
-						minLength={1}
-						maxLength={100}
-					/>
-					{/* 🐨 add the title error messages here */}
+		<div className="absolute inset-0">
+			<Form
+				// 🐨 to test out the server-side validation, you need to disable the
+				// client-side validation. You can do that by adding:
+				// noValidate
+				method="post"
+				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+			>
+				<div className="flex flex-col gap-1">
+					<div>
+						{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
+						<Label>Title</Label>
+						<Input
+							name="title"
+							defaultValue={data.note.title}
+							required
+							minLength={1}
+							maxLength={100}
+						/>
+						{/* 🐨 add the title error messages here */}
+					</div>
+					<div>
+						{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
+						<Label>Content</Label>
+						<Textarea
+							name="content"
+							defaultValue={data.note.content}
+							required
+							minLength={1}
+							maxLength={10000}
+						/>
+						{/* 🐨 add content the error messages here */}
+					</div>
 				</div>
-				<div>
-					{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
-					<Label>Content</Label>
-					<Textarea
-						name="content"
-						defaultValue={data.note.content}
-						required
-						minLength={1}
-						maxLength={10000}
-					/>
-					{/* 🐨 add content the error messages here */}
-				</div>
-			</div>
-			{/* 🐨 add the form error messages here */}
-			{/*
+				{/* 🐨 add the form error messages here */}
+				{/*
 				🦉 even though we don't really have form messages, we're going to
 				have you do it anyway so you can see how it works and to maintain
 				consistency with the codebase.
@@ -110,8 +110,10 @@ export default function NoteEdit() {
 				be at the form level (like, maybe your content must include a word from
 				the title or something like that)
 			*/}
+			</Form>
 			<div className={floatingToolbarClassName}>
 				<Button variant="destructive" type="reset">
+					{/* 🦉 NOTE: this button doesn't work right now, we'll get to that in the accessibility exercise */}
 					Reset
 				</Button>
 				<StatusButton
@@ -122,7 +124,7 @@ export default function NoteEdit() {
 					Submit
 				</StatusButton>
 			</div>
-		</Form>
+		</div>
 	)
 }
 

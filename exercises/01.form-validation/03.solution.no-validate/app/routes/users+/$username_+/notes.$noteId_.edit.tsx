@@ -14,7 +14,7 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
 import { invariantResponse } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
@@ -47,6 +47,8 @@ const contentMinLength = 1
 const contentMaxLength = 10000
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const title = formData.get('title')
 	const content = formData.get('content')
@@ -81,10 +83,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 		return json({ status: 'error', errors } as const, { status: 400 })
 	}
 
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: { title, content },
-	})
+	await updateNote({ id: params.noteId, title, content })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -124,44 +123,47 @@ export default function NoteEdit() {
 	const isHydrated = useHydrated()
 
 	return (
-		<Form
-			noValidate={isHydrated}
-			method="post"
-			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
-		>
-			<div className="flex flex-col gap-1">
-				<div>
-					{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
-					<Label>Title</Label>
-					<Input
-						name="title"
-						defaultValue={data.note.title}
-						required
-						minLength={titleMinLength}
-						maxLength={titleMaxLength}
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList errors={fieldErrors?.title} />
+		<div className="absolute inset-0">
+			<Form
+				noValidate={isHydrated}
+				method="post"
+				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+			>
+				<div className="flex flex-col gap-1">
+					<div>
+						{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
+						<Label>Title</Label>
+						<Input
+							name="title"
+							defaultValue={data.note.title}
+							required
+							minLength={titleMinLength}
+							maxLength={titleMaxLength}
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList errors={fieldErrors?.title} />
+						</div>
+					</div>
+					<div>
+						{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
+						<Label>Content</Label>
+						<Textarea
+							name="content"
+							defaultValue={data.note.content}
+							required
+							minLength={contentMinLength}
+							maxLength={contentMaxLength}
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList errors={fieldErrors?.content} />
+						</div>
 					</div>
 				</div>
-				<div>
-					{/* 🦉 NOTE: this is not an accessible label, we'll get to that in the accessibility exercises */}
-					<Label>Content</Label>
-					<Textarea
-						name="content"
-						defaultValue={data.note.content}
-						required
-						minLength={contentMinLength}
-						maxLength={contentMaxLength}
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList errors={fieldErrors?.content} />
-					</div>
-				</div>
-			</div>
-			<ErrorList errors={formErrors} />
+				<ErrorList errors={formErrors} />
+			</Form>
 			<div className={floatingToolbarClassName}>
 				<Button variant="destructive" type="reset">
+					{/* 🦉 NOTE: this button doesn't work right now, we'll get to that in the accessibility exercise */}
 					Reset
 				</Button>
 				<StatusButton
@@ -172,7 +174,7 @@ export default function NoteEdit() {
 					Submit
 				</StatusButton>
 			</div>
-		</Form>
+		</div>
 	)
 }
 

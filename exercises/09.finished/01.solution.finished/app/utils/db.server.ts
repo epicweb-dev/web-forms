@@ -182,9 +182,13 @@ export async function updateNote({
 			if (!image) return null
 
 			if (image.id) {
-				const filepath = image.image ? await writeImage(image.image) : undefined
-				// udpate the ID so caching is invalidated
-				const id = image.image ? getId() : undefined
+				const hasReplacement = (image?.image?.size || 0) > 0
+				const filepath =
+					image.image && hasReplacement
+						? await writeImage(image.image)
+						: undefined
+				// update the ID so caching is invalidated
+				const id = image.image && hasReplacement ? getId() : image.id
 
 				return db.image.update({
 					where: { id: { equals: image.id } },

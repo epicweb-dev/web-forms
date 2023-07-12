@@ -29,6 +29,8 @@ export async function loader({ params }: DataFunctionArgs) {
 }
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const intent = formData.get('intent')
 

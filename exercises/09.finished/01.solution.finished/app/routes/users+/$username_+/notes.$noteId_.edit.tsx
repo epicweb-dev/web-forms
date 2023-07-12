@@ -8,10 +8,10 @@ import {
 } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import {
+	unstable_createMemoryUploadHandler as createMemoryUploadHandler,
 	json,
+	unstable_parseMultipartFormData as parseMultipartFormData,
 	redirect,
-	unstable_createMemoryUploadHandler,
-	unstable_parseMultipartFormData,
 	type DataFunctionArgs,
 } from '@remix-run/node'
 import {
@@ -63,14 +63,7 @@ const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
 const ImageFieldsetSchema = z
 	.object({
 		id: z.string().optional(),
-		image: z
-			.preprocess(
-				value => (value === '' ? new File([], '') : value),
-				z.instanceof(File).refine(file => {
-					return file.size <= MAX_UPLOAD_SIZE
-				}, 'Image size must be less than 3MB'),
-			)
-			.optional(),
+		image: z.instanceof(File).refine(file => file.size > 0, 'File is required'),
 		altText: z.string().optional(),
 	})
 	.nullable()
@@ -82,11 +75,11 @@ const NoteEditorSchema = z.object({
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
-	invariantResponse(params.noteId, 'Missing noteId')
+	invariantResponse(params.noteId, 'noteId param is required')
 
-	const formData = await unstable_parseMultipartFormData(
+	const formData = await parseMultipartFormData(
 		request,
-		unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
+		createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
 	)
 
 	const submission = parse(formData, {
@@ -154,7 +147,7 @@ export default function NoteEdit() {
 		defaultValue: {
 			title: data.note?.title,
 			content: data.note?.content,
-			images: data.note?.images.map(i => ({ ...i, type: 'existing' })) ?? [],
+			images: data.note?.images ?? [],
 		},
 	})
 	const imageList = useFieldList(form.ref, fields.images)
@@ -164,10 +157,8 @@ export default function NoteEdit() {
 			<Form
 				method="post"
 				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
-				aria-invalid={Boolean(form.errors.length) || undefined}
-				aria-describedby={form.errors.length ? form.errorId : undefined}
-				encType="multipart/form-data"
 				{...form.props}
+				encType="multipart/form-data"
 			>
 				{/*
 					This hidden submit button is here to ensure that when the user hits
@@ -177,9 +168,8 @@ export default function NoteEdit() {
 				<button type="submit" className="hidden" />
 				<div className="flex flex-col gap-1">
 					<div>
-						<Label htmlFor="note-title">Title</Label>
+						<Label htmlFor={fields.title.id}>Title</Label>
 						<Input
-							id="note-title"
 							autoFocus
 							{...conform.input(fields.title, { ariaAttributes: true })}
 						/>
@@ -191,9 +181,8 @@ export default function NoteEdit() {
 						</div>
 					</div>
 					<div>
-						<Label htmlFor="note-content">Content</Label>
+						<Label htmlFor={fields.content.id}>Content</Label>
 						<Textarea
-							id="note-content"
 							{...conform.textarea(fields.content, { ariaAttributes: true })}
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">

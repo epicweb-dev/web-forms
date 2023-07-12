@@ -59,7 +59,16 @@
       "path": "exercises/03.schema-validation/03.solution.conform-form"
     },
     {
-      "path": "exercises/04.file-upload/01.problem"
+      "path": "exercises/04.file-upload/01.problem.multi-part"
+    },
+    {
+      "path": "exercises/04.file-upload/01.solution.multi-part"
+    },
+    {
+      "path": "exercises/04.file-upload/02.problem"
+    },
+    {
+      "path": "exercises/04.file-upload/02.solution"
     },
     {
       "path": "exercises/09.finished/01.solution.finished"

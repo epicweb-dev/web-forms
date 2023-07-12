@@ -16,8 +16,8 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
-import { useFocusInvalid } from '~/utils/misc.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
+import { invariantResponse, useFocusInvalid } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -40,17 +40,24 @@ const titleMaxLength = 100
 const contentMinLength = 1
 const contentMaxLength = 10000
 
-export const NoteEditorSchema = z.object({
+const NoteEditorSchema = z.object({
 	title: z.string().min(titleMinLength).max(titleMaxLength),
 	content: z.string().min(contentMinLength).max(contentMaxLength),
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
 		acceptMultipleErrors: () => true,
 	})
+
+	if (submission.intent !== 'submit') {
+		return json({ status: 'idle', submission } as const)
+	}
+
 	if (!submission.value) {
 		return json(
 			{
@@ -60,12 +67,9 @@ export async function action({ request, params }: DataFunctionArgs) {
 			{ status: 400 },
 		)
 	}
-	const { title, content } = submission.payload
+	const { title, content } = submission.value
 
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: { title, content },
-	})
+	await updateNote({ id: params.noteId, title, content })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -103,6 +107,7 @@ export default function NoteEdit() {
 	const formRef = useRef<HTMLFormElement>(null)
 	const navigation = useNavigation()
 	const formAction = useFormAction()
+	const formId = 'note-editor'
 	const isSubmitting =
 		navigation.state !== 'idle' &&
 		navigation.formMethod === 'post' &&
@@ -124,56 +129,60 @@ export default function NoteEdit() {
 	useFocusInvalid(formRef.current, actionData?.status === 'error')
 
 	return (
-		<Form
-			noValidate={isHydrated}
-			method="post"
-			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
-			aria-invalid={formHasErrors || undefined}
-			aria-describedby={formErrorId}
-			ref={formRef}
-			tabIndex={-1}
-		>
-			<div className="flex flex-col gap-1">
-				<div>
-					<Label htmlFor="note-title">Title</Label>
-					<Input
-						id="note-title"
-						name="title"
-						defaultValue={data.note.title}
-						required
-						minLength={titleMinLength}
-						maxLength={titleMaxLength}
-						aria-invalid={titleHasErrors || undefined}
-						aria-describedby={titleErrorId}
-						autoFocus
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList id={titleErrorId} errors={fieldErrors?.title} />
+		<div className="absolute inset-0">
+			<Form
+				id={formId}
+				noValidate={isHydrated}
+				method="post"
+				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+				aria-invalid={formHasErrors || undefined}
+				aria-describedby={formErrorId}
+				ref={formRef}
+				tabIndex={-1}
+			>
+				<div className="flex flex-col gap-1">
+					<div>
+						<Label htmlFor="note-title">Title</Label>
+						<Input
+							id="note-title"
+							name="title"
+							defaultValue={data.note.title}
+							required
+							minLength={titleMinLength}
+							maxLength={titleMaxLength}
+							aria-invalid={titleHasErrors || undefined}
+							aria-describedby={titleErrorId}
+							autoFocus
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList id={titleErrorId} errors={fieldErrors?.title} />
+						</div>
+					</div>
+					<div>
+						<Label htmlFor="note-content">Content</Label>
+						<Textarea
+							id="note-content"
+							name="content"
+							defaultValue={data.note.content}
+							required
+							minLength={contentMinLength}
+							maxLength={contentMaxLength}
+							aria-invalid={contentHasErrors || undefined}
+							aria-describedby={contentErrorId}
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList id={contentErrorId} errors={fieldErrors?.content} />
+						</div>
 					</div>
 				</div>
-				<div>
-					<Label htmlFor="note-content">Content</Label>
-					<Textarea
-						id="note-content"
-						name="content"
-						defaultValue={data.note.content}
-						required
-						minLength={contentMinLength}
-						maxLength={contentMaxLength}
-						aria-invalid={contentHasErrors || undefined}
-						aria-describedby={contentErrorId}
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList id={contentErrorId} errors={fieldErrors?.content} />
-					</div>
-				</div>
-			</div>
-			<ErrorList id={formErrorId} errors={formErrors} />
+				<ErrorList id={formErrorId} errors={formErrors} />
+			</Form>
 			<div className={floatingToolbarClassName}>
-				<Button variant="destructive" type="reset">
+				<Button form={formId} variant="destructive" type="reset">
 					Reset
 				</Button>
 				<StatusButton
+					form={formId}
 					type="submit"
 					disabled={isSubmitting}
 					status={isSubmitting ? 'pending' : 'idle'}
@@ -181,7 +190,7 @@ export default function NoteEdit() {
 					Submit
 				</StatusButton>
 			</div>
-		</Form>
+		</div>
 	)
 }
 

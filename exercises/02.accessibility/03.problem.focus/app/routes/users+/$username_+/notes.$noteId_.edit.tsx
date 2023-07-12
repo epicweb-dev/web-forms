@@ -14,7 +14,7 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
 import { invariantResponse } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
@@ -47,6 +47,8 @@ const contentMinLength = 1
 const contentMaxLength = 10000
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const title = formData.get('title')
 	const content = formData.get('content')
@@ -81,10 +83,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 		return json({ status: 'error', errors } as const, { status: 400 })
 	}
 
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: { title, content },
-	})
+	await updateNote({ id: params.noteId, title, content })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -119,6 +118,7 @@ export default function NoteEdit() {
 	// 🐨 create a ref for the form element
 	const navigation = useNavigation()
 	const formAction = useFormAction()
+	const formId = 'note-editor'
 	const isSubmitting =
 		navigation.state !== 'idle' &&
 		navigation.formMethod === 'post' &&
@@ -149,58 +149,62 @@ export default function NoteEdit() {
 	// 📜 https://mdn.io/element.matches
 
 	return (
-		<Form
-			noValidate={isHydrated}
-			method="post"
-			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
-			aria-invalid={formHasErrors || undefined}
-			aria-describedby={formErrorId}
-			// 🐨 add the form ref prop here
-			// 📜 https://react.dev/reference/react/useRef#manipulating-the-dom-with-a-ref
-			// 🐨 add a tabIndex={-1} here so we can programmatically focus on the form
-			// 📜 https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex
-		>
-			<div className="flex flex-col gap-1">
-				<div>
-					<Label htmlFor="note-title">Title</Label>
-					<Input
-						id="note-title"
-						name="title"
-						defaultValue={data.note.title}
-						required
-						minLength={titleMinLength}
-						maxLength={titleMaxLength}
-						aria-invalid={titleHasErrors || undefined}
-						aria-describedby={titleErrorId}
-						// 🐨 add autoFocus here
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList id={titleErrorId} errors={fieldErrors?.title} />
+		<div className="absolute inset-0">
+			<Form
+				id={formId}
+				noValidate={isHydrated}
+				method="post"
+				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+				aria-invalid={formHasErrors || undefined}
+				aria-describedby={formErrorId}
+				// 🐨 add the form ref prop here
+				// 📜 https://react.dev/reference/react/useRef#manipulating-the-dom-with-a-ref
+				// 🐨 add a tabIndex={-1} here so we can programmatically focus on the form
+				// 📜 https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex
+			>
+				<div className="flex flex-col gap-1">
+					<div>
+						<Label htmlFor="note-title">Title</Label>
+						<Input
+							id="note-title"
+							name="title"
+							defaultValue={data.note.title}
+							required
+							minLength={titleMinLength}
+							maxLength={titleMaxLength}
+							aria-invalid={titleHasErrors || undefined}
+							aria-describedby={titleErrorId}
+							// 🐨 add autoFocus here
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList id={titleErrorId} errors={fieldErrors?.title} />
+						</div>
+					</div>
+					<div>
+						<Label htmlFor="note-content">Content</Label>
+						<Textarea
+							id="note-content"
+							name="content"
+							defaultValue={data.note.content}
+							required
+							minLength={contentMinLength}
+							maxLength={contentMaxLength}
+							aria-invalid={contentHasErrors || undefined}
+							aria-describedby={contentErrorId}
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList id={contentErrorId} errors={fieldErrors?.content} />
+						</div>
 					</div>
 				</div>
-				<div>
-					<Label htmlFor="note-content">Content</Label>
-					<Textarea
-						id="note-content"
-						name="content"
-						defaultValue={data.note.content}
-						required
-						minLength={contentMinLength}
-						maxLength={contentMaxLength}
-						aria-invalid={contentHasErrors || undefined}
-						aria-describedby={contentErrorId}
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList id={contentErrorId} errors={fieldErrors?.content} />
-					</div>
-				</div>
-			</div>
-			<ErrorList id={formErrorId} errors={formErrors} />
+				<ErrorList id={formErrorId} errors={formErrors} />
+			</Form>
 			<div className={floatingToolbarClassName}>
-				<Button variant="destructive" type="reset">
+				<Button form={formId} variant="destructive" type="reset">
 					Reset
 				</Button>
 				<StatusButton
+					form={formId}
 					type="submit"
 					disabled={isSubmitting}
 					status={isSubmitting ? 'pending' : 'idle'}
@@ -208,7 +212,7 @@ export default function NoteEdit() {
 					Submit
 				</StatusButton>
 			</div>
-		</Form>
+		</div>
 	)
 }
 

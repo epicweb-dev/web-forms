@@ -16,7 +16,8 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
+import { invariantResponse } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -39,17 +40,24 @@ const titleMaxLength = 100
 const contentMinLength = 1
 const contentMaxLength = 10000
 
-export const NoteEditorSchema = z.object({
+const NoteEditorSchema = z.object({
 	title: z.string().min(titleMinLength).max(titleMaxLength),
 	content: z.string().min(contentMinLength).max(contentMaxLength),
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
+	invariantResponse(params.noteId, 'noteId param is required')
+
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
 		acceptMultipleErrors: () => true,
 	})
+
+	if (submission.intent !== 'submit') {
+		return json({ status: 'idle', submission } as const)
+	}
+
 	if (!submission.value) {
 		return json(
 			{
@@ -59,12 +67,9 @@ export async function action({ request, params }: DataFunctionArgs) {
 			{ status: 400 },
 		)
 	}
-	const { title, content } = submission.payload
+	const { title, content } = submission.value
 
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: { title, content },
-	})
+	await updateNote({ id: params.noteId, title, content })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -114,45 +119,47 @@ export default function NoteEdit() {
 	})
 
 	return (
-		<Form
-			method="post"
-			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
-			aria-invalid={Boolean(form.errorId) || undefined}
-			aria-describedby={form.errorId}
-			{...form.props}
-		>
-			<div className="flex flex-col gap-1">
-				<div>
-					<Label htmlFor="note-title">Title</Label>
-					<Input
-						id="note-title"
-						autoFocus
-						{...conform.input(fields.title, { ariaAttributes: true })}
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList id={fields.title.errorId} errors={fields.title.errors} />
-					</div>
-				</div>
-				<div>
-					<Label htmlFor="note-content">Content</Label>
-					<Textarea
-						id="note-content"
-						{...conform.textarea(fields.content, { ariaAttributes: true })}
-					/>
-					<div className="min-h-[32px] px-4 pb-3 pt-1">
-						<ErrorList
-							id={fields.content.errorId}
-							errors={fields.content.errors}
+		<div className="absolute inset-0">
+			<Form
+				method="post"
+				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+				{...form.props}
+			>
+				<div className="flex flex-col gap-1">
+					<div>
+						<Label htmlFor={fields.title.id}>Title</Label>
+						<Input
+							autoFocus
+							{...conform.input(fields.title, { ariaAttributes: true })}
 						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList
+								id={fields.title.errorId}
+								errors={fields.title.errors}
+							/>
+						</div>
+					</div>
+					<div>
+						<Label htmlFor={fields.content.id}>Content</Label>
+						<Textarea
+							{...conform.textarea(fields.content, { ariaAttributes: true })}
+						/>
+						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							<ErrorList
+								id={fields.content.errorId}
+								errors={fields.content.errors}
+							/>
+						</div>
 					</div>
 				</div>
-			</div>
-			<ErrorList id={form.errorId} errors={form.errors} />
+				<ErrorList id={form.errorId} errors={form.errors} />
+			</Form>
 			<div className={floatingToolbarClassName}>
-				<Button variant="destructive" type="reset">
+				<Button form={form.id} variant="destructive" type="reset">
 					Reset
 				</Button>
 				<StatusButton
+					form={form.id}
 					type="submit"
 					disabled={isSubmitting}
 					status={isSubmitting ? 'pending' : 'idle'}
@@ -160,7 +167,7 @@ export default function NoteEdit() {
 					Submit
 				</StatusButton>
 			</div>
-		</Form>
+		</div>
 	)
 }
 
