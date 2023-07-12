@@ -1,0 +1,177 @@
+import { conform, useForm } from '@conform-to/react'
+import { getFieldsetConstraint, parse } from '@conform-to/zod'
+import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import {
+	Form,
+	useActionData,
+	useFormAction,
+	useLoaderData,
+	useNavigation,
+} from '@remix-run/react'
+import { z } from 'zod'
+import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
+import { floatingToolbarClassName } from '~/components/floating-toolbar.tsx'
+import { Button } from '~/components/ui/button.tsx'
+import { Input } from '~/components/ui/input.tsx'
+import { Label } from '~/components/ui/label.tsx'
+import { StatusButton } from '~/components/ui/status-button.tsx'
+import { Textarea } from '~/components/ui/textarea.tsx'
+import { db } from '~/utils/db.server.ts'
+
+export async function loader({ params }: DataFunctionArgs) {
+	const note = db.note.findFirst({
+		where: {
+			id: {
+				equals: params.noteId,
+			},
+		},
+	})
+	if (!note) {
+		throw new Response('Note note found', { status: 404 })
+	}
+	return json({
+		note: { title: note.title, content: note.content },
+	})
+}
+
+const titleMinLength = 1
+const titleMaxLength = 100
+const contentMinLength = 1
+const contentMaxLength = 10000
+
+export const NoteEditorSchema = z.object({
+	title: z.string().min(titleMinLength).max(titleMaxLength),
+	content: z.string().min(contentMinLength).max(contentMaxLength),
+})
+
+export async function action({ request, params }: DataFunctionArgs) {
+	const formData = await request.formData()
+	const submission = parse(formData, {
+		schema: NoteEditorSchema,
+		acceptMultipleErrors: () => true,
+	})
+	if (!submission.value) {
+		return json(
+			{
+				status: 'error',
+				submission,
+			} as const,
+			{ status: 400 },
+		)
+	}
+	const { title, content } = submission.payload
+
+	db.note.update({
+		where: { id: { equals: params.noteId } },
+		data: { title, content },
+	})
+
+	return redirect(`/users/${params.username}/notes/${params.noteId}`)
+}
+
+function ErrorList({
+	id,
+	errors,
+}: {
+	id?: string
+	errors?: Array<string> | string | null
+}) {
+	if (!errors) return null
+	errors = Array.isArray(errors) ? errors : [errors]
+
+	return errors?.length ? (
+		<ul id={id} className="flex flex-col gap-1">
+			{errors.map((error, i) => (
+				<li key={i} className="text-[10px] text-foreground-danger">
+					{error}
+				</li>
+			))}
+		</ul>
+	) : null
+}
+
+export default function NoteEdit() {
+	const data = useLoaderData<typeof loader>()
+	const actionData = useActionData<typeof action>()
+	const navigation = useNavigation()
+	const formAction = useFormAction()
+	const isSubmitting =
+		navigation.state !== 'idle' &&
+		navigation.formMethod === 'post' &&
+		navigation.formAction === formAction
+
+	const [form, fields] = useForm({
+		id: 'note-editor',
+		constraint: getFieldsetConstraint(NoteEditorSchema),
+		lastSubmission: actionData?.submission,
+		onValidate({ formData }) {
+			return parse(formData, { schema: NoteEditorSchema })
+		},
+		defaultValue: {
+			title: data.note?.title,
+			content: data.note?.content,
+		},
+	})
+
+	return (
+		<Form
+			method="post"
+			className="flex h-full flex-col gap-y-4 overflow-x-hidden px-10 pb-28 pt-12"
+			aria-invalid={Boolean(form.errorId) || undefined}
+			aria-describedby={form.errorId}
+			{...form.props}
+		>
+			<div className="flex flex-col gap-1">
+				<div>
+					<Label htmlFor="note-title">Title</Label>
+					<Input
+						id="note-title"
+						autoFocus
+						{...conform.input(fields.title, { ariaAttributes: true })}
+					/>
+					<div className="min-h-[32px] px-4 pb-3 pt-1">
+						<ErrorList id={fields.title.errorId} errors={fields.title.errors} />
+					</div>
+				</div>
+				<div>
+					<Label htmlFor="note-content">Content</Label>
+					<Textarea
+						id="note-content"
+						{...conform.textarea(fields.content, { ariaAttributes: true })}
+					/>
+					<div className="min-h-[32px] px-4 pb-3 pt-1">
+						<ErrorList
+							id={fields.content.errorId}
+							errors={fields.content.errors}
+						/>
+					</div>
+				</div>
+			</div>
+			<ErrorList id={form.errorId} errors={form.errors} />
+			<div className={floatingToolbarClassName}>
+				<Button variant="destructive" type="reset">
+					Reset
+				</Button>
+				<StatusButton
+					type="submit"
+					disabled={isSubmitting}
+					status={isSubmitting ? 'pending' : 'idle'}
+				>
+					Submit
+				</StatusButton>
+			</div>
+		</Form>
+	)
+}
+
+export function ErrorBoundary() {
+	return (
+		<GeneralErrorBoundary
+			statusHandlers={{
+				404: ({ params }) => (
+					<p>No note with the id "{params.noteId}" exists</p>
+				),
+			}}
+		/>
+	)
+}
