@@ -55,11 +55,13 @@ export default function NoteRoute() {
 				<ul className="flex flex-wrap gap-5 py-5">
 					{data.note.images.map(image => (
 						<li key={image.id}>
-							<img
-								src={`/resources/images/${image.id}`}
-								alt={image.altText ?? ''}
-								className="h-32 w-32 rounded-lg object-cover"
-							/>
+							<a href={`/resources/images/${image.id}`}>
+								<img
+									src={`/resources/images/${image.id}`}
+									alt={image.altText ?? ''}
+									className="h-32 w-32 rounded-lg object-cover"
+								/>
+							</a>
 						</li>
 					))}
 				</ul>

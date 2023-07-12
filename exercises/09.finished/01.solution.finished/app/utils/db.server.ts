@@ -4,6 +4,9 @@
  * the proper database.
  */
 import { factory, manyOf, nullable, oneOf, primaryKey } from '@mswjs/data'
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import os from 'node:os'
 import crypto from 'crypto'
 import { singleton } from './singleton.server.ts'
 
@@ -156,3 +159,72 @@ export const db = singleton('db', () => {
 
 	return db
 })
+
+type ImageUpdate = {
+	id?: string
+	image?: File
+	altText?: string
+}
+
+export async function updateNote({
+	id,
+	title,
+	content,
+	images,
+}: {
+	id: string
+	title: string
+	content: string
+	images?: Array<ImageUpdate | null>
+}) {
+	const noteImagePromises =
+		images?.map(async image => {
+			if (!image) return null
+
+			if (image.id) {
+				const filepath = image.image ? await writeImage(image.image) : undefined
+				// udpate the ID so caching is invalidated
+				const id = image.image ? getId() : undefined
+
+				return db.image.update({
+					where: { id: { equals: image.id } },
+					data: {
+						id,
+						filepath,
+						altText: image.altText,
+					},
+				})
+			} else if (image.image) {
+				if (image.image.size < 1) return null
+				const filepath = await writeImage(image.image)
+				return db.image.create({
+					altText: image.altText,
+					filepath,
+					contentType: image.image.type,
+				})
+			} else {
+				return null
+			}
+		}) ?? []
+
+	const noteImages = await Promise.all(noteImagePromises)
+	console.log({ noteImages })
+	db.note.update({
+		where: { id: { equals: id } },
+		data: {
+			title,
+			content,
+			images: noteImages.filter(Boolean),
+		},
+	})
+}
+
+async function writeImage(image: File) {
+	const tmpDir = path.join(os.tmpdir(), 'epic-web', 'images')
+	await fs.mkdir(tmpDir, { recursive: true })
+
+	const timestamp = Date.now()
+	const filepath = path.join(tmpDir, `${timestamp}.${image.name}`)
+	await fs.writeFile(filepath, Buffer.from(await image.arrayBuffer()))
+	return filepath
+}

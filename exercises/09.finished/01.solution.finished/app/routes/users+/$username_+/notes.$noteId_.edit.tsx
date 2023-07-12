@@ -10,8 +10,6 @@ import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import {
 	json,
 	redirect,
-	unstable_composeUploadHandlers,
-	unstable_createFileUploadHandler,
 	unstable_createMemoryUploadHandler,
 	unstable_parseMultipartFormData,
 	type DataFunctionArgs,
@@ -32,8 +30,8 @@ import { Input } from '~/components/ui/input.tsx'
 import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
-import { db } from '~/utils/db.server.ts'
-import { cn } from '~/utils/misc.ts'
+import { db, updateNote } from '~/utils/db.server.ts'
+import { cn, invariantResponse } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -62,63 +60,37 @@ const contentMaxLength = 10000
 
 const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
 
-const ClientImageFieldsetSchema = z.union([
-	z.object({
-		type: z.literal('new'),
-		image: z.instanceof(File).optional(),
-		altText: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal('existing'),
-		id: z.string(),
-		altText: z.string().optional(),
-	}),
-])
-
-const ServerImageFieldsetSchema = z.union([
-	z.object({
-		type: z.literal('new'),
+const ImageFieldsetSchema = z
+	.object({
+		id: z.string().optional(),
 		image: z
-			.object({
-				filepath: z.string(),
-				type: z.string(),
-			})
+			.preprocess(
+				value => (value === '' ? new File([], '') : value),
+				z.instanceof(File).refine(file => {
+					return file.size <= MAX_UPLOAD_SIZE
+				}, 'Image size must be less than 3MB'),
+			)
 			.optional(),
 		altText: z.string().optional(),
-	}),
-	z.object({
-		type: z.literal('existing'),
-		id: z.string(),
-		altText: z.string().optional(),
-	}),
-])
+	})
+	.nullable()
 
-const BaseNoteEditorSchema = z.object({
+const NoteEditorSchema = z.object({
 	title: z.string().min(titleMinLength).max(titleMaxLength),
 	content: z.string().min(contentMinLength).max(contentMaxLength),
-})
-
-const ClientNoteEditorSchema = BaseNoteEditorSchema.extend({
-	images: z.array(ClientImageFieldsetSchema).optional(),
-})
-const ServerNoteEditorSchema = BaseNoteEditorSchema.extend({
-	images: z.array(ServerImageFieldsetSchema).optional(),
+	images: z.array(ImageFieldsetSchema).optional(),
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
-	const uploadHandler = unstable_composeUploadHandlers(
-		unstable_createFileUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
-		// parse everything else into memory
-		unstable_createMemoryUploadHandler(),
-	)
-	const formData = await unstable_parseMultipartFormData(request, uploadHandler)
+	invariantResponse(params.noteId, 'Missing noteId')
 
-	for (const entry of formData.entries()) {
-		console.log(entry)
-	}
+	const formData = await unstable_parseMultipartFormData(
+		request,
+		unstable_createMemoryUploadHandler({ maxPartSize: MAX_UPLOAD_SIZE }),
+	)
 
 	const submission = parse(formData, {
-		schema: ServerNoteEditorSchema,
+		schema: NoteEditorSchema,
 		acceptMultipleErrors: () => true,
 	})
 
@@ -136,39 +108,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 		)
 	}
 	const { title, content, images } = submission.value
-
-	console.dir({ value: submission.value }, { depth: 6, colors: true })
-
-	const noteImages =
-		images
-			?.map(image => {
-				if ('id' in image) {
-					return db.image.update({
-						where: { id: { equals: image.id } },
-						data: {
-							altText: image.altText,
-						},
-					})
-				} else if (image.image) {
-					return db.image.create({
-						altText: image.altText,
-						filepath: image.image.filepath,
-						contentType: image.image.type,
-					})
-				} else {
-					return null
-				}
-			})
-			.filter(Boolean) ?? []
-
-	db.note.update({
-		where: { id: { equals: params.noteId } },
-		data: {
-			title,
-			content,
-			images: noteImages,
-		},
-	})
+	await updateNote({ id: params.noteId, title, content, images })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
 }
@@ -194,24 +134,6 @@ function ErrorList({
 	) : null
 }
 
-function DeleteIcon({ className }: { className: string }) {
-	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<title>Delete</title>
-			<line x1="18" y1="6" x2="6" y2="18" />
-			<line x1="6" y1="6" x2="18" y2="18" />
-		</svg>
-	)
-}
 export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
@@ -224,10 +146,10 @@ export default function NoteEdit() {
 
 	const [form, fields] = useForm({
 		id: 'note-editor',
-		constraint: getFieldsetConstraint(ClientNoteEditorSchema),
+		constraint: getFieldsetConstraint(NoteEditorSchema),
 		lastSubmission: actionData?.submission,
 		onValidate({ formData }) {
-			return parse(formData, { schema: ClientNoteEditorSchema })
+			return parse(formData, { schema: NoteEditorSchema })
 		},
 		defaultValue: {
 			title: data.note?.title,
@@ -236,7 +158,6 @@ export default function NoteEdit() {
 		},
 	})
 	const imageList = useFieldList(form.ref, fields.images)
-	console.log({ form, fields, imageList })
 
 	return (
 		<div className="absolute inset-0">
@@ -294,7 +215,7 @@ export default function NoteEdit() {
 										className="absolute right-0 top-0 text-destructive"
 										{...list.remove(fields.images.name, { index })}
 									>
-										<DeleteIcon className="h-4 w-4" />
+										❌
 									</button>
 									<ImageChooser config={image} />
 								</li>
@@ -305,7 +226,7 @@ export default function NoteEdit() {
 						className="mt-3"
 						{...list.append(fields.images.name, { defaultValue: null })}
 					>
-						<AddIcon className="h-5 w-5" /> Image
+						➕ Image
 					</Button>
 				</div>
 				<ErrorList id={form.errorId} errors={form.errors} />
@@ -327,45 +248,26 @@ export default function NoteEdit() {
 	)
 }
 
-function AddIcon({ className }: { className: string }) {
-	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<line x1="12" y1="5" x2="12" y2="19" />
-			<line x1="5" y1="12" x2="19" y2="12" />
-		</svg>
-	)
-}
-
 function ImageChooser({
 	config,
 }: {
-	config: FieldConfig<z.infer<typeof ClientImageFieldsetSchema>>
+	config: FieldConfig<z.infer<typeof ImageFieldsetSchema>>
 }) {
 	const ref = useRef<HTMLFieldSetElement>(null)
 	const fields = useFieldset(ref, config)
-	const existingImage = fields.type.defaultValue === 'existing'
+	const existingImage = Boolean(fields.id.defaultValue)
 	const [previewImage, setPreviewImage] = useState<string | null>(
 		existingImage ? `/resources/images/${fields.id.defaultValue}` : null,
 	)
 	const [altText, setAltText] = useState(fields.altText.defaultValue ?? '')
 
 	return (
-		<fieldset ref={ref} form={config.form}>
-			<input
-				{...conform.input(fields.type)}
-				type="hidden"
-				defaultValue={undefined}
-				value={existingImage ? 'existing' : 'new'}
-			/>
+		<fieldset
+			ref={ref}
+			form={config.form}
+			aria-invalid={Boolean(config.errors?.length) || undefined}
+			aria-describedby={config.errors?.length ? config.errorId : undefined}
+		>
 			<div className="flex gap-3">
 				<div className="w-32">
 					<div className="relative h-32 w-32">
@@ -391,8 +293,8 @@ function ImageChooser({
 									)}
 								</div>
 							) : (
-								<div className="flex h-32 w-32 items-center justify-center rounded-lg border border-muted-foreground text-muted-foreground">
-									<AddIcon className="h-24 w-24" />
+								<div className="flex h-32 w-32 items-center justify-center rounded-lg border border-muted-foreground text-4xl text-muted-foreground">
+									➕
 								</div>
 							)}
 							{existingImage ? (
@@ -400,26 +302,25 @@ function ImageChooser({
 									{...conform.input(fields.id, { ariaAttributes: true })}
 									type="hidden"
 								/>
-							) : (
-								<input
-									className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
-									onChange={event => {
-										const file = event.target.files?.[0]
+							) : null}
+							<input
+								className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
+								onChange={event => {
+									const file = event.target.files?.[0]
 
-										if (file) {
-											const reader = new FileReader()
-											reader.onloadend = () => {
-												setPreviewImage(reader.result as string)
-											}
-											reader.readAsDataURL(file)
-										} else {
-											setPreviewImage(null)
+									if (file) {
+										const reader = new FileReader()
+										reader.onloadend = () => {
+											setPreviewImage(reader.result as string)
 										}
-									}}
-									{...conform.input(fields.image, { ariaAttributes: true })}
-									type="file"
-								/>
-							)}
+										reader.readAsDataURL(file)
+									} else {
+										setPreviewImage(null)
+									}
+								}}
+								{...conform.input(fields.image, { ariaAttributes: true })}
+								type="file"
+							/>
 						</label>
 					</div>
 					<div className="min-h-[32px] px-4 pb-3 pt-1">
@@ -439,6 +340,9 @@ function ImageChooser({
 						/>
 					</div>
 				</div>
+			</div>
+			<div className="min-h-[32px] px-4 pb-3 pt-1">
+				<ErrorList id={config.errorId} errors={config.errors} />
 			</div>
 		</fieldset>
 	)
