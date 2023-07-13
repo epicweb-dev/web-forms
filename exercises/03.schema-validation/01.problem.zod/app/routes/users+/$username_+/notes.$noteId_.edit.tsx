@@ -33,6 +33,8 @@ export async function loader({ params }: DataFunctionArgs) {
 	})
 }
 
+// 💣 We can get rid of this type now that we're bringing in Zod schema validation
+// which will generate types for us.
 type ActionErrors = {
 	formErrors: Array<string>
 	fieldErrors: {
@@ -46,10 +48,14 @@ const titleMaxLength = 100
 const contentMinLength = 1
 const contentMaxLength = 10000
 
+// 🐨 Create a schema called NoteEditorSchema which is an object and has
+// the title and content fields. You'll use string, min, and max.
+
 export async function action({ request, params }: DataFunctionArgs) {
 	invariantResponse(params.noteId, 'noteId param is required')
 
 	const formData = await request.formData()
+	// 💣 remove everything between this line and the next 💣 line
 	const title = formData.get('title')
 	const content = formData.get('content')
 	invariantResponse(typeof title === 'string', 'title must be a string')
@@ -79,7 +85,16 @@ export async function action({ request, params }: DataFunctionArgs) {
 	const hasErrors =
 		errors.formErrors.length ||
 		Object.values(errors.fieldErrors).some(fieldErrors => fieldErrors.length)
+	// 💣 remove everything between this line and the previous 💣 line
+	// Yeah! That's a lot of stuff we can delete 🤯
+
+	// 🐨 use the NoteEditorSchema.safeParse method to parse an object from the formData
+	// 💰 { title: formData.get('title'), content: formData.get('content') }
+
+	// 🐨 change this from hasErrors to !result.success
 	if (hasErrors) {
+		// 🐨 you can use result.error.flatten() to get the errors and it'll give
+		// you a very similar object to what we had before! (it's almost like we planned this 🧐)
 		return json({ status: 'error', errors } as const, { status: 400 })
 	}
 
@@ -132,8 +147,10 @@ export default function NoteEdit() {
 
 	const formHasErrors = Boolean(formErrors?.length)
 	const formErrorId = formHasErrors ? 'form-error' : undefined
+	// 🐨 the title may be undefined on the fieldErrors, so add a ? after "title" here:
 	const titleHasErrors = Boolean(fieldErrors?.title.length)
 	const titleErrorId = titleHasErrors ? 'title-error' : undefined
+	// 🐨 the content may be undefined on the fieldErrors, so add a ? after "content" here:
 	const contentHasErrors = Boolean(fieldErrors?.content.length)
 	const contentErrorId = contentHasErrors ? 'content-error' : undefined
 

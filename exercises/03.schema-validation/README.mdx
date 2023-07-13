@@ -1,3 +1,111 @@
 # Schema Validation
 
-TODO: write about Zod and whatnot
+It doesn't take long before you are really tired of writing code that looks like
+what we currently have for our form validation:
+
+```tsx
+if (title.length < titleMinLength) {
+	errors.fieldErrors.title.push('Title must be at least 1 character')
+}
+if (title.length > titleMaxLength) {
+	errors.fieldErrors.title.push('Title must be at most 100 characters')
+}
+if (content.length < contentMinLength) {
+	errors.fieldErrors.content.push('Content must be at least 1 character')
+}
+if (content.length > contentMaxLength) {
+	errors.fieldErrors.content.push('Content must be at most 10000 characters')
+}
+```
+
+I'm afraid to say it gets worse.
+
+If you haven't felt the draw to write a utility to improve this yet, you will.
+For example, we could do something like this:
+
+```tsx
+function validate(value: string, min: number, max: number) {
+	const errors = []
+	if (value.length < min) {
+		errors.push(`Must be at least ${min} characters`)
+	}
+	if (value.length > max) {
+		errors.push(`Must be at most ${max} characters`)
+	}
+	return errors
+}
+
+errors.fieldErrors.title.push(
+	...validate(title, titleMinLength, titleMaxLength),
+)
+errors.fieldErrors.content.push(
+	...validate(content, contentMinLength, contentMaxLength),
+)
+```
+
+Luckily, there are already libraries that do this for us so we don't have to
+trouble ourselves with writing our own validation. On top of this, they allow
+you to be much more declarative with your validation. The library we'll use
+looks like this:
+
+```tsx
+z.object({
+	title: z.string().min(titleMinLength).max(titleMaxLength),
+	content: z.string().min(contentMinLength).max(contentMaxLength),
+})
+```
+
+This is how you create your schema. And then you use that to perform the
+validation (parsing):
+
+```tsx
+const result = schema.safeParse({ title, content })
+
+if (result.success) {
+	// we're good, check result.data
+} else {
+	// we're not good, check result.error
+}
+```
+
+Schema validation is a great way to validate data due to its declarative nature.
+
+## Zod
+
+The library we're going to use is [Zod](https://zod.dev). It's a TypeScript
+first library that allows you to define schemas for your data. A lot of the web
+ecosystem already uses it and it has great integrations with other libraries
+we'll want to use.
+
+And because it has fantastic TypeScript support, it allows us to have a lot more
+confidence in our code as the types flow through our application. It's a great
+way to manage I/O boundaries to your application like reading from the
+filesystem, making HTTP requests, and interacting with databases.
+
+Zod also allows for a great deal of customization and
+[refinement](https://zod.dev/?id=refine) in your validation and error messages.
+Here are some examples from [the Zod docs](https://zod.dev):
+
+```tsx
+z.string().max(5, { message: 'Must be 5 or fewer characters long' })
+
+const name = z.string({
+	required_error: 'Name is required',
+	invalid_type_error: 'Name must be a string',
+})
+
+const user = z.object({
+	username: z.string().optional(),
+})
+
+const nonEmptyStrings = z.array(z.string()).nonempty({
+	message: "Can't be empty!",
+})
+
+// even type inference based on the schema:
+const A = z.string()
+type A = z.infer<typeof A> // string
+```
+
+Zod is extremely powerful. I recommend you have the documentation open during
+these exercises for reference.

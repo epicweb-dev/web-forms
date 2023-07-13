@@ -1,3 +1,41 @@
 # Zod schema validation
 
-TODO: write about this exercise
+🧝‍♂️ BTW, I swapped your `useEffect` for a custom `useFocusInvalid` hook, just so
+you know.
+
+👨‍💼 Let's make our validation better and more declarative. Prepare to delete a
+lot of code!
+
+One important thing you'll want to know is how Zod manages errors. When you use
+`zodSchema.parse`, it will throw an error if the data is invalid. If you use
+`zodSchema.safeParse`, it will return an object with a `success` property that
+tells you whether the data is valid or not. If it's not valid, it will also
+have an `error` property that contains the error object. If it is valid, it
+will have a `data` property that contains the parsed data.
+
+The [Error Handling](https://zod.dev/ERROR_HANDLING) docs can be quite helpful.
+You'll definitely want to use
+[`.flatten`](https://zod.dev/ERROR_HANDLING?id=flattening-errors) for this one:
+
+```tsx
+if (!result.success) {
+	console.log(result.error.flatten())
+}
+/*
+  {
+    formErrors: [],
+    fieldErrors: {
+      name: ['Expected string, received null'],
+      contactInfo: ['Invalid email']
+    },
+  }
+*/
+```
+
+That shape may look a little familiar 😅
+
+That should be enough to get you going.
+
+- [📜 Zod docs](https://zod.dev)
+- [📜 Zod Error Handling](https://zod.dev/ERROR_HANDLING)
+- [📜 Zod Flattening Errors](https://zod.dev/ERROR_HANDLING?id=flattening-errors)
