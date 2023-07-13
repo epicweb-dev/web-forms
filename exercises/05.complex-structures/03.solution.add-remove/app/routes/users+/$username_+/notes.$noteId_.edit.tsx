@@ -203,7 +203,7 @@ export default function NoteEdit() {
 							{imageList.map((image, index) => (
 								<li
 									key={image.key}
-									className="border-b-2 border-muted-foreground"
+									className="relative border-b-2 border-muted-foreground"
 								>
 									<button
 										className="absolute right-0 top-0 text-destructive"
