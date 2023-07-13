@@ -65,13 +65,28 @@
       "path": "exercises/04.file-upload/01.solution.multi-part"
     },
     {
-      "path": "exercises/04.file-upload/02.problem"
+      "path": "exercises/04.file-upload/02.problem.file-validation"
     },
     {
-      "path": "exercises/04.file-upload/02.solution"
+      "path": "exercises/04.file-upload/02.solution.file-validation"
     },
     {
-      "path": "exercises/09.finished/01.solution.finished"
+      "path": "exercises/05.complex-structures/01.problem.nested"
+    },
+    {
+      "path": "exercises/05.complex-structures/01.solution.nested"
+    },
+    {
+      "path": "exercises/05.complex-structures/02.problem.lists"
+    },
+    {
+      "path": "exercises/05.complex-structures/02.solution.lists"
+    },
+    {
+      "path": "exercises/05.complex-structures/03.problem.add-remove"
+    },
+    {
+      "path": "exercises/05.complex-structures/03.solution.add-remove"
     }
   ]
 }

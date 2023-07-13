@@ -82,8 +82,9 @@ export async function action({ request, params }: DataFunctionArgs) {
 		title,
 		content,
 		// 🐨 add an images array and pass an object that has the
-		// id, image, and altText that was submitted.
+		// id, file, and altText that was submitted.
 		// Right now, we're just going to grab these values straight from formData.
+		// 💰 formData.get('file'), etc.
 		// In the next step, we'll add this to the Zod schema.
 		// 🦺 TypeScript won't like this. We'll fix it in the next step, so don't worry about it.
 	})
@@ -251,7 +252,7 @@ function ImageChooser({
 										setPreviewImage(null)
 									}
 								}}
-								// 🐨 add a name of "image" here:
+								// 🐨 add a name of "file" here:
 								type="file"
 							/>
 						</label>

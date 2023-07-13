@@ -160,12 +160,6 @@ export const db = singleton('db', () => {
 	return db
 })
 
-type ImageUpdate = {
-	id?: string
-	image?: File
-	altText?: string
-}
-
 export async function updateNote({
 	id,
 	title,
@@ -175,20 +169,24 @@ export async function updateNote({
 	id: string
 	title: string
 	content: string
-	images?: Array<ImageUpdate | null>
+	images?: Array<{
+		id?: string
+		file?: File
+		altText?: string
+	} | null>
 }) {
 	const noteImagePromises =
 		images?.map(async image => {
 			if (!image) return null
 
 			if (image.id) {
-				const hasReplacement = (image?.image?.size || 0) > 0
+				const hasReplacement = (image?.file?.size || 0) > 0
 				const filepath =
-					image.image && hasReplacement
-						? await writeImage(image.image)
+					image.file && hasReplacement
+						? await writeImage(image.file)
 						: undefined
 				// update the ID so caching is invalidated
-				const id = image.image && hasReplacement ? getId() : image.id
+				const id = image.file && hasReplacement ? getId() : image.id
 
 				return db.image.update({
 					where: { id: { equals: image.id } },
@@ -198,13 +196,13 @@ export async function updateNote({
 						altText: image.altText,
 					},
 				})
-			} else if (image.image) {
-				if (image.image.size < 1) return null
-				const filepath = await writeImage(image.image)
+			} else if (image.file) {
+				if (image.file.size < 1) return null
+				const filepath = await writeImage(image.file)
 				return db.image.create({
 					altText: image.altText,
 					filepath,
-					contentType: image.image.type,
+					contentType: image.file.type,
 				})
 			} else {
 				return null
