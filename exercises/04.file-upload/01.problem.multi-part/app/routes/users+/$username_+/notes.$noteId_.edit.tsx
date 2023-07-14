@@ -153,7 +153,10 @@ export default function NoteEdit() {
 							/>
 						</div>
 					</div>
-					{/* 🐨 render the ImageChooser and pass the note's first image as the image prop */}
+					<div>
+						<Label>Image</Label>
+						{/* 🐨 render the ImageChooser and pass the note's first image as the image prop */}
+					</div>
 				</div>
 				<ErrorList id={form.errorId} errors={form.errors} />
 			</Form>
@@ -237,6 +240,7 @@ function ImageChooser({
 								}}
 								// 🐨 add a name of "file" here:
 								type="file"
+								accept="image/*"
 							/>
 						</label>
 					</div>

@@ -263,6 +263,7 @@ function ImageChooser({
 								}}
 								{...conform.input(fields.file, {
 									type: 'file',
+									accept: 'image/*',
 									ariaAttributes: true,
 								})}
 							/>

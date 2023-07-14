@@ -1,3 +1,163 @@
 # File Upload
 
-TODO: Write stuff about file uploads
+A lot of the data users submit to us is fine in text form. But there are some
+things that aren't represented by text very well. For example, images, videos,
+documents, and audio files. For these, we need to use a different type of input.
+To that end, the
+[`file` input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file)
+was introduced in HTML in version 4.01 in December 1999.
+
+The `<input type="file" />` element is an essential part of the HTML
+specification that enables interaction with the file system on a user's device.
+This element creates a user interface that allows users to select one or
+multiple files from their system. These files can then be uploaded to a server
+or manipulated client-side using JavaScript. The files selected are represented
+in a `FileList` object, which is a simple list of `File` objects.
+
+Here's a simple example of its usage:
+
+```html
+<form action="/upload" method="post" enctype="multipart/form-data">
+	<label for="file-upload-input">Upload File</label>
+	<input type="file" id="file-upload-input" name="file-upload" />
+	<button type="submit">Upload File</button>
+</form>
+```
+
+In this case, when a file is chosen, it will be included in the form data upon
+submission and then can be processed server-side. The `enctype` attribute is set
+to "multipart/form-data" to ensure the file data is sent correctly to the
+server (when it's unset, the encoding type is
+"application/x-www-form-urlencoded"). This means, if you already have some
+server code that's processing a form submission, you may have to update it to
+account for the new encoding type if you wish to start accepting files. This is
+because files are uploaded as binary data and not as plaintext.
+
+For multiple file selection, you simply add the `multiple` attribute:
+
+```html
+<form action="/upload" method="post" enctype="multipart/form-data">
+	<input type="file" id="file-upload" name="file-upload" multiple />
+	<input type="submit" value="Upload File" />
+</form>
+```
+
+Once a file or files have been selected, they can be accessed via JavaScript using
+the `files` property on the file input element, which returns a `FileList` object.
+
+```javascript
+let fileList = document.getElementById('file-upload').files
+```
+
+Each `File` object within the `FileList` contains properties such as `name`,
+`size`, `type`, which represents the MIME type, and `lastModified`. These files
+can then be read and manipulated using the `FileReader` API.
+
+Keep in mind that due to privacy concerns, JavaScript in the browser doesn't
+have full access to read and write to the file system. The
+`<input type="file" />` element, along with the `File`, `FileList`, and
+`FileReader` APIs, provides a secure way of accessing the file system for the
+purposes of reading file data, uploading files, or manipulating files
+client-side.
+
+You can also use the `accept` attribute to specify the types of files that can
+be uploaded. This is a comma-separated list of MIME types or file extensions.
+For example, to only allow images to be uploaded, you can use the following:
+
+```html
+<input type="file" id="file-upload" name="file-upload" accept="image/*" />
+```
+
+## On the server
+
+Let's say you're uploading a file that's 1GB in size. That's a lot of data to
+send over the wire. So, the browser will split the file into chunks and send
+them over the wire one at a time. This is called a
+[stream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/ReadableStream).
+The server will then receive these chunks one at a time and then reassemble them
+into the original file.
+
+Another challenge is the fact that while we can easily store `formData` in
+memory, storing a 1GB file in memory is not a good idea. Instead, we want to
+hot-potato that file out of memory to somewhere else. This is where you need to
+make a decision. Do you have a persistent file system you can write to (if
+you're using serverless, the answer is kinda, but not really). Would you prefer
+to send it off to a file host like S3? Or do you want to store it in a database?
+
+Each of these has its own implications, but for all of them, you'll simply proxy
+the stream chunks from the client to the destination so you never have the
+entire file in memory at once.
+
+But maybe your files aren't that big. If they're just a couple MBs, you can get
+away with storing those in memory for a short period of time. This is a fair bit
+simpler, but you do still need to deal with the stream of data to construct the
+file on the server.
+
+## In Remix
+
+## In Remix
+
+Remix provides a convenient way to handle file uploads. Remix strives to focus
+on the web platform, which is why so far we've just used the platform standard
+`request.formData()` API for parsing the form. Unfortunately, parsing file
+submissions is a little more involved. Luckily, it's just a little bit more
+involved thanks to the utilities provided by Remix.
+
+<callout-warning>
+	These packages all have the `unstable_` prefix which means while the use case
+	is important to Remix, the specifics of the API could change. These should be
+	made official in the very near future and I don't personally expect any API
+	changes at this point.
+</callout-warning>
+
+[**`unstable_parseMultipartFormData`**](https://remix.run/docs/en/main/utils/parse-multipart-form-data):
+This is the utility that allows you to turn the stream of data and turn it into
+a `FormData` object. This is the same object you get from `request.formData()`,
+but the bit that represents the file will depend on the "uploadHandler" you use.
+
+[**`unstable_createFileUploadHandler`**](https://remix.run/docs/en/main/utils/unstable-create-file-upload-handler):
+This is a "uploadHandler" that you can use with
+`unstable_parseMultipartFormData` which will stream the file to disk and give
+you back a path to that file with some other meta data.
+
+[**`unstable_createMemoryUploadHandler`**](https://remix.run/docs/en/main/utils/unstable-create-memory-upload-handler):
+This is a "uploadHandler" that you can use with
+`unstable_parseMultipartFormData` which will store the file in memory and give
+you back a web standard
+[`File`](https://developer.mozilla.org/en-US/docs/Web/API/File) object. This is
+only suitable for small files and you should definitely use the `maxPartSize`
+option to limit the size of files it will load into your server's memory.
+
+Here's how you could us the memory upload handler (copied from the Remix docs):
+
+```tsx
+import {
+	unstable_createMemoryUploadHandler as createMemoryUploadHandler,
+	unstable_parseMultipartFormData as parseMultipartFormData,
+} from '@remix-run/node'
+export const action = async ({ request }: ActionArgs) => {
+	const uploadHandler = createMemoryUploadHandler({
+		maxPartSize: 1024 * 1024 * 5, // 5 MB
+	})
+	const formData = await parseMultipartFormData(request, uploadHandler)
+
+	const file = formData.get('avatar')
+
+	// file is a "File" (https://mdn.io/File) polyfilled for node
+	// ... etc
+}
+```
+
+Custom upload handlers can be created as well. And you can combine these using
+the `unstable_composeUploadHandlers` utility which allows you to treat each
+file as its own upload and use a different upload handler for each file.
+Creating custom handlers is outside the scope of this workshop, but you can find
+examples in [the Remix examples](https://github.com/remix-run/examples) repo of
+[uploading to S3](https://github.com/remix-run/examples/blob/main/file-and-s3-upload/app/routes/s3-upload.tsx)
+and [cloudinary](https://github.com/remix-run/examples/blob/main/file-and-cloudinary-upload/app/routes/cloudinary-upload.tsx).
+
+## Conform
+
+Conform has full support for validating file uploads, there are some caveats,
+but it's pretty straightforward. See
+[the Conform File Upload guide](https://conform.guide/file-upload) for details.

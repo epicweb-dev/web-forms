@@ -252,6 +252,7 @@ function ImageChooser({
 								}}
 								name="file"
 								type="file"
+								accept="image/*"
 							/>
 						</label>
 					</div>
