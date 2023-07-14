@@ -14,13 +14,7 @@ import {
 	redirect,
 	type DataFunctionArgs,
 } from '@remix-run/node'
-import {
-	Form,
-	useActionData,
-	useFormAction,
-	useLoaderData,
-	useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useRef, useState } from 'react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
@@ -31,7 +25,7 @@ import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
 import { db, updateNote } from '~/utils/db.server.ts'
-import { cn, invariantResponse } from '~/utils/misc.ts'
+import { cn, invariantResponse, useIsSubmitting } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -116,7 +110,7 @@ function ErrorList({
 	if (!errors) return null
 	errors = Array.isArray(errors) ? errors : [errors]
 
-	return errors?.length ? (
+	return errors.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
 				<li key={i} className="text-[10px] text-foreground-danger">
@@ -130,12 +124,7 @@ function ErrorList({
 export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
-	const navigation = useNavigation()
-	const formAction = useFormAction()
-	const isSubmitting =
-		navigation.state !== 'idle' &&
-		navigation.formMethod === 'post' &&
-		navigation.formAction === formAction
+	const isSubmitting = useIsSubmitting()
 
 	const [form, fields] = useForm({
 		id: 'note-editor',
@@ -145,9 +134,9 @@ export default function NoteEdit() {
 			return parse(formData, { schema: NoteEditorSchema })
 		},
 		defaultValue: {
-			title: data.note?.title,
-			content: data.note?.content,
-			images: data.note?.images ?? [],
+			title: data.note.title,
+			content: data.note.content,
+			images: data.note.images,
 		},
 	})
 	const imageList = useFieldList(form.ref, fields.images)
@@ -292,8 +281,10 @@ function ImageChooser({
 							)}
 							{existingImage ? (
 								<input
-									{...conform.input(fields.id, { ariaAttributes: true })}
-									type="hidden"
+									{...conform.input(fields.id, {
+										type: 'hidden',
+										ariaAttributes: true,
+									})}
 								/>
 							) : null}
 							<input
@@ -311,8 +302,10 @@ function ImageChooser({
 										setPreviewImage(null)
 									}
 								}}
-								{...conform.input(fields.file, { ariaAttributes: true })}
-								type="file"
+								{...conform.input(fields.file, {
+									type: 'file',
+									ariaAttributes: true,
+								})}
 							/>
 						</label>
 					</div>

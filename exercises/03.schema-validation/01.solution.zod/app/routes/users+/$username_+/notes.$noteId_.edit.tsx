@@ -1,11 +1,5 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import {
-	Form,
-	useActionData,
-	useFormAction,
-	useLoaderData,
-	useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
@@ -16,7 +10,11 @@ import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
 import { db, updateNote } from '~/utils/db.server.ts'
-import { invariantResponse, useFocusInvalid } from '~/utils/misc.ts'
+import {
+	invariantResponse,
+	useFocusInvalid,
+	useIsSubmitting,
+} from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -94,13 +92,8 @@ export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
 	const formRef = useRef<HTMLFormElement>(null)
-	const navigation = useNavigation()
-	const formAction = useFormAction()
 	const formId = 'note-editor'
-	const isSubmitting =
-		navigation.state !== 'idle' &&
-		navigation.formMethod === 'post' &&
-		navigation.formAction === formAction
+	const isSubmitting = useIsSubmitting()
 
 	const fieldErrors =
 		actionData?.status === 'error' ? actionData.errors.fieldErrors : null

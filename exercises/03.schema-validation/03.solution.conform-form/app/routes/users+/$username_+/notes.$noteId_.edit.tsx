@@ -1,13 +1,7 @@
 import { conform, useForm } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import {
-	Form,
-	useActionData,
-	useFormAction,
-	useLoaderData,
-	useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '~/components/floating-toolbar.tsx'
@@ -17,7 +11,7 @@ import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
 import { db, updateNote } from '~/utils/db.server.ts'
-import { invariantResponse } from '~/utils/misc.ts'
+import { invariantResponse, useIsSubmitting } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -54,10 +48,6 @@ export async function action({ request, params }: DataFunctionArgs) {
 		acceptMultipleErrors: () => true,
 	})
 
-	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
-	}
-
 	if (!submission.value) {
 		return json(
 			{
@@ -84,7 +74,7 @@ function ErrorList({
 	if (!errors) return null
 	errors = Array.isArray(errors) ? errors : [errors]
 
-	return errors?.length ? (
+	return errors.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
 				<li key={i} className="text-[10px] text-foreground-danger">
@@ -98,12 +88,7 @@ function ErrorList({
 export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
-	const navigation = useNavigation()
-	const formAction = useFormAction()
-	const isSubmitting =
-		navigation.state !== 'idle' &&
-		navigation.formMethod === 'post' &&
-		navigation.formAction === formAction
+	const isSubmitting = useIsSubmitting()
 
 	const [form, fields] = useForm({
 		id: 'note-editor',
@@ -113,8 +98,8 @@ export default function NoteEdit() {
 			return parse(formData, { schema: NoteEditorSchema })
 		},
 		defaultValue: {
-			title: data.note?.title,
-			content: data.note?.content,
+			title: data.note.title,
+			content: data.note.content,
 		},
 	})
 

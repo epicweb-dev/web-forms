@@ -1,11 +1,5 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import {
-	Form,
-	useActionData,
-	useFormAction,
-	useLoaderData,
-	useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '~/components/floating-toolbar.tsx'
@@ -15,7 +9,7 @@ import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
 import { db, updateNote } from '~/utils/db.server.ts'
-import { invariantResponse } from '~/utils/misc.ts'
+import { invariantResponse, useIsSubmitting } from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -109,13 +103,8 @@ function useHydrated() {
 export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
-	const navigation = useNavigation()
-	const formAction = useFormAction()
 	// 🐨 create a formId variable here, set it to any unique string you like
-	const isSubmitting =
-		navigation.state !== 'idle' &&
-		navigation.formMethod === 'post' &&
-		navigation.formAction === formAction
+	const isSubmitting = useIsSubmitting()
 
 	const fieldErrors =
 		actionData?.status === 'error' ? actionData.errors.fieldErrors : null

@@ -1,3 +1,38 @@
 # Conform action utils
 
-TODO: write about conform
+👨‍💼 Great! I'm already feeling safer.
+
+🦉 Did you look at the `submission` object? Here's an example:
+
+```json
+{
+	"status": "error",
+	"submission": {
+		"intent": "submit",
+		"payload": {
+			"title": "Basic Koala Facts",
+			"content": ""
+		},
+		"error": {
+			"content": "String must contain at least 1 character(s)"
+		}
+	}
+}
+```
+
+Why do you suppose it needs to include the `intent` and `payload`? Don't we
+already have that information? Yes, we do. But if we're thinking about
+progressive enhancement, then we need to consider the fact that when the user
+submits their form, they're sending some data to our server. Because there's no
+JS on the page to handle the submission, this will be a full-page reload. If
+there's an error, we want to render the same page again and we want to render
+the error _with the data they submitted_. The only way we can do this is if we
+include the data in our response.
+
+It is possible we could optimize this a bit
+([here's an idea](https://github.com/edmundhung/conform/issues/218)), but it's
+really cool that we don't have to worry about this. Before bringing in Conform,
+this didn't work at all. Now it works out of the box... Or at least it will once
+we implement the UI side of conform.
+
+👨‍💼 Yeah! Let's get to that.

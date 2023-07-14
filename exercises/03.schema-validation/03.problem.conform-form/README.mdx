@@ -1,3 +1,105 @@
 # Conform form utils
 
-TODO: write about conform
+👨‍💼 The backend is only one piece of this. Now we want to use Conform to help us
+build out the form in the UI. We'll use the `@conform/react` package for some
+utilities and also a utility from `@conform/zod` to convert our Zod schema into
+HTML validation attributes so we can delete those! Once we've done that, we no
+longer need to duplicate that validation logic in the UI! It's truly consistent
+between the UI and the server!
+
+Here's the relevant bits from the example we had in our background info for this
+exercise:
+
+```tsx lines=1-2,16-23,26,28-30,33-43,45
+import { conform, useForm } from '@conform-to/react'
+import { getFieldsetConstraint, parse } from '@conform-to/zod'
+import { Form } from '@remix-run/react'
+import { json, redirect } from '@remix-run/node'
+import { z } from 'zod'
+
+const LoginSchema = z.object({
+	email: z.string().min(1, 'Email is required').email('Email is invalid'),
+	password: z.string().min(1, 'Password is required'),
+})
+
+// ...
+
+export default function LoginForm() {
+	const actionData = useActionData<typeof action>()
+	const [form, fields] = useForm({
+		id: 'login-form',
+		constraint: getFieldsetConstraint(LoginSchema),
+		lastSubmission: actionData?.submission,
+		onValidate({ formData }) {
+			return parse(formData, { schema: LoginSchema })
+		},
+	})
+
+	return (
+		<Form method="post" {...form.props}>
+			<div>
+				<label htmlFor={fields.email.id}>Email</label>
+				<input {...conform.input(fields.email, { ariaAttributes: true })} />
+				<ErrorList id={fields.email.errorId} errors={fields.email.errors} />
+			</div>
+			<div>
+				<label htmlFor={fields.password.id}>Password</label>
+				<input
+					{...conform.input(fields.password, {
+						ariaAttributes: true,
+						type: 'password',
+					})}
+				/>
+				<ErrorList
+					id={fields.password.errorId}
+					errors={fields.password.errors}
+				/>
+			</div>
+			<ErrorList id={fields.password.errorId} errors={form.errors} />
+			<button type="submit">Login</button>
+		</Form>
+	)
+}
+```
+
+Notice the lack of HTML validation, `name`, `id`, and `aria-` attributes! Oh,
+and the lack of `noValidate` on the form as well. All that stuff is handled for
+us by Conform and derived from our Zod schema. And it's all typesafe as well. If
+we change the schema, we'll get type errors in both our UI and our server code.
+And again, it's all progressively enhanced too.
+
+The derived attributes are coming from the `getFieldsetConstraint` utility which
+reads our Zod schema and configures the `fields` to have the correct attributes.
+Then the `conform.input`, `conform.textarea`, etc. utilities read that config
+and applies the correct attributes.
+
+The `lastSubmission` option is used to set the errors as well as the values of
+the fields.
+
+And the `onValidate` bit will run our validation on the client. This is awesome
+because now the user doesn't need to bother submitting the form before they get
+feedback on their input! This has interesting implications for validation that
+requires database access. We'll get to that in a bit.
+
+Conform truly is great 🏅
+
+But we've still gotta implement it first! So let's get to it.
+
+Oh, one thing that's not in our example that we'll be using is the
+`defaultValue` option. Since we're editing a note, we want the initial values
+to be set to the current value in the note. For example:
+
+```tsx lines=8-11
+const [form, fields] = useForm({
+	id: 'login-form',
+	constraint: getFieldsetConstraint(LoginSchema),
+	lastSubmission: actionData?.submission,
+	onValidate({ formData }) {
+		return parse(formData, { schema: LoginSchema })
+	},
+	defaultValue: {
+		email: user.email,
+		password: 'lol',
+	},
+})
+```

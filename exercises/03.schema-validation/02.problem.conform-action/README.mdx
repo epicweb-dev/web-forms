@@ -1,3 +1,67 @@
 # Conform action utils
 
-TODO: write about conform
+👨‍💼 Having to create an object out of `formData` is troublesome. We can actually
+call `Object.fromEntries(formData)` and that'll work for our simple case, but
+it's pretty limited and doesn't work for nested objects (which we'll get to
+later). So let's use Conform's utilities to update our `action` to parse our
+`formData` and parse it with Zod for us:
+
+Here's the relevant part of the example from the background info we saw earlier:
+
+```tsx lines=1,11-12,16-21,23-28,30-33,35,39-40
+import { getFieldsetConstraint, parse } from '@conform-to/zod'
+import { Form } from '@remix-run/react'
+import { json, redirect } from '@remix-run/node'
+import { z } from 'zod'
+
+const LoginSchema = z.object({
+	email: z.string().min(1, 'Email is required').email('Email is invalid'),
+	password: z.string().min(1, 'Password is required'),
+})
+
+// https://github.com/edmundhung/conform/issues/211
+const FORM_ERROR = ''
+
+export async function action({ request }: DataFunctionArgs) {
+	const formData = await request.formData()
+	const submission = parse(formData, {
+		schema: LoginSchema,
+		// This makes it so if a field has more than one error, we'll display all of them
+		// https://github.com/edmundhung/conform/issues/215
+		acceptMultipleErrors: () => true,
+	})
+
+	if (submission.intent !== 'submit') {
+		// the user hasn't submitted the form yet
+		// this will happen if Conform is validating the form before submission
+		// (like if we configure Conform to validate onBlur)
+		return json({ status: 'idle', submission } as const)
+	}
+
+	if (!submission.value) {
+		// there's no value because there is an error in the form
+		return json({ status: 'error', submission } as const, { status: 400 })
+	}
+
+	const { email, password } = submission.value
+
+	const isAuthenticated = await authenticate({ email, password })
+	if (!isAuthenticated) {
+		submission.error[FORM_ERROR] = ['Invalid email or password']
+		return json({ status: 'error', submission } as const, { status: 401 })
+	}
+
+	return redirect('/dashboard')
+}
+```
+
+Could you update our form to use this in the `action`? This will require a few
+changes in the UI as well because the errors are _slightly_ different and we'll
+be passing back a `submission` object instead of just the `errors`.
+
+🦉 I'd like you to check out what the `submission` object looks like in the
+network tab or log it to the console. Why do you suppose all that information is
+necessary?
+
+- [📜 `@conform-to/zod`](https://conform.guide/api/zod)
+- [📜 Conform Validation](https://conform.guide/validation)

@@ -1,11 +1,5 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import {
-	Form,
-	useActionData,
-	useFormAction,
-	useLoaderData,
-	useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
@@ -16,7 +10,11 @@ import { Label } from '~/components/ui/label.tsx'
 import { StatusButton } from '~/components/ui/status-button.tsx'
 import { Textarea } from '~/components/ui/textarea.tsx'
 import { db, updateNote } from '~/utils/db.server.ts'
-import { invariantResponse, useFocusInvalid } from '~/utils/misc.ts'
+import {
+	invariantResponse,
+	useFocusInvalid,
+	useIsSubmitting,
+} from '~/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -49,16 +47,27 @@ export async function action({ request, params }: DataFunctionArgs) {
 
 	const formData = await request.formData()
 
+	// 🐨 swap this for parse from conform, passing the formData as the first argument
+	// 🐨 For the options, provide NoteEditorSchema as the "schema" and let's
+	// enable the multiple errors option with "acceptMultipleErrors: () => true"
+	// 🦉 it's common convention to call the variable assigned to the parse call "submission"
 	const result = NoteEditorSchema.safeParse({
 		title: formData.get('title'),
 		content: formData.get('content'),
 	})
 
+	// instead of result.success, we can use submission.value. If there's no submission.value,
+	// then there will be errors.
+	// 🐨 replace "!result.success" with "!submission.value"
 	if (!result.success) {
+		// instead of sending back "errors," we want to send back the entire "submission"
+		// 🐨 replace "errors: result.error.flatten()" with "submission"
 		return json({ status: 'error', errors: result.error.flatten() } as const, {
 			status: 400,
 		})
 	}
+	// if there were no errors, we can get the (typesafe!! 🦺) values from submission.value
+	// 🐨 replace "result.data" with "submission.value"
 	const { title, content } = result.data
 
 	await updateNote({ id: params.noteId, title, content })
@@ -71,8 +80,13 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
+	// The errors in conform can also be a single string, so you'll need to handle that case
+	// This will be changed soon: https://github.com/edmundhung/conform/issues/212
+	// 🐨 add "| string" to this type
 	errors?: Array<string> | null
 }) {
+	// 🐨 if the errors is null, return null
+	// 🐨 if the errors is a string, turn it into an array of that one string
 	return errors?.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
@@ -94,16 +108,14 @@ export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
 	const formRef = useRef<HTMLFormElement>(null)
-	const navigation = useNavigation()
-	const formAction = useFormAction()
 	const formId = 'note-editor'
-	const isSubmitting =
-		navigation.state !== 'idle' &&
-		navigation.formMethod === 'post' &&
-		navigation.formAction === formAction
+	const isSubmitting = useIsSubmitting()
 
+	// 🐨 instead of actionData.errors.fieldErrors, we'll use actionData.submission.error
 	const fieldErrors =
 		actionData?.status === 'error' ? actionData.errors.fieldErrors : null
+	// 🐨 instead of actionData.errors.formErrors, we'll use actionData.submission.error['']
+	// (Yeah, it's weird and will change... https://github.com/edmundhung/conform/issues/211)
 	const formErrors =
 		actionData?.status === 'error' ? actionData.errors.formErrors : null
 	const isHydrated = useHydrated()
