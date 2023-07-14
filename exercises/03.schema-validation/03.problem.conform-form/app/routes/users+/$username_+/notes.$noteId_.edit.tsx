@@ -53,13 +53,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 	})
 
 	if (!submission.value) {
-		return json(
-			{
-				status: 'error',
-				submission,
-			} as const,
-			{ status: 400 },
-		)
+		return json({ status: 'error', submission } as const, { status: 400 })
 	}
 	const { title, content } = submission.value
 
@@ -99,10 +93,13 @@ function useHydrated() {
 export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
+	// 💣 we don't need the formRef anymore
 	const formRef = useRef<HTMLFormElement>(null)
+	// 💣 we don't need the formId anymore
 	const formId = 'note-editor'
 	const isSubmitting = useIsSubmitting()
 
+	// 💣 delete everthing between here and the next 💣
 	const fieldErrors =
 		actionData?.status === 'error' ? actionData.submission.error : null
 	const formErrors =
@@ -117,23 +114,34 @@ export default function NoteEdit() {
 	const contentErrorId = contentHasErrors ? 'content-error' : undefined
 
 	useFocusInvalid(formRef.current, actionData?.status === 'error')
+	// 💣 delete everthing between here and the previous 💣
+	// Conform does a lot for us huh!? 🤯
+
+	// 🐨 add your useForm config here
+	// 💰 reference the instructions for what it should look like
+	// 💰 make sure to check on the defaultValue in the instructions as well
 
 	return (
 		<div className="absolute inset-0">
 			<Form
+				// 💣 delete the id and noValidate props
 				id={formId}
 				noValidate={isHydrated}
 				method="post"
 				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
+				// 💣 delete the rest of these props
 				aria-invalid={formHasErrors || undefined}
 				aria-describedby={formErrorId}
 				ref={formRef}
 				tabIndex={-1}
+				// 🐨 add {...form.props} here
 			>
 				<div className="flex flex-col gap-1">
 					<div>
+						{/* 🐨 replace the hard-coded "note-title" for fields.title.id */}
 						<Label htmlFor="note-title">Title</Label>
 						<Input
+							// 💣 everything between here and the next 💣 can be deleted
 							id="note-title"
 							name="title"
 							defaultValue={data.note.title}
@@ -142,15 +150,21 @@ export default function NoteEdit() {
 							maxLength={titleMaxLength}
 							aria-invalid={titleHasErrors || undefined}
 							aria-describedby={titleErrorId}
+							// 💣 everything between here and the previous 💣 can be deleted
 							autoFocus
+							// 🐨 add {...fields.title.props} here
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							{/* 🐨 get the id from fields.title.errorId */}
+							{/* 🐨 get the errors from fields.title.errors */}
 							<ErrorList id={titleErrorId} errors={fieldErrors?.title} />
 						</div>
 					</div>
 					<div>
+						{/* 🐨 replace the hard-coded "note-content" for fields.content.id */}
 						<Label htmlFor="note-content">Content</Label>
 						<Textarea
+							// 💣 everything between here and the next 💣 can be deleted
 							id="note-content"
 							name="content"
 							defaultValue={data.note.content}
@@ -159,19 +173,27 @@ export default function NoteEdit() {
 							maxLength={contentMaxLength}
 							aria-invalid={contentHasErrors || undefined}
 							aria-describedby={contentErrorId}
+							// 💣 everything between here and the previous 💣 can be deleted
+							// 🐨 add {...fields.content.props} here
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
+							{/* 🐨 get the id from fields.content.errorId */}
+							{/* 🐨 get the errors from fields.content.errors */}
 							<ErrorList id={contentErrorId} errors={fieldErrors?.content} />
 						</div>
 					</div>
 				</div>
+				{/* 🐨 get the id from form.errorId */}
+				{/* 🐨 get the errors from form.errors */}
 				<ErrorList id={formErrorId} errors={formErrors} />
 			</Form>
 			<div className={floatingToolbarClassName}>
+				{/* 🐨 replace formId with form.id */}
 				<Button form={formId} variant="destructive" type="reset">
 					Reset
 				</Button>
 				<StatusButton
+					// 🐨 replace formId with form.id
 					form={formId}
 					type="submit"
 					disabled={isSubmitting}

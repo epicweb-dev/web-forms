@@ -11,7 +11,7 @@ You get what the `action` returns using a hook called `useActionData` which is
 very similar to `useLoaderData` with the exception that it will return
 `undefined` until the `action` has been called. Here's an example of that:
 
-```tsx filename=app/routes/subscribe.tsx lines=2,4-9,15-36,44,46-47,54-60
+```tsx filename=app/routes/subscribe.tsx lines=2,4-9,15-36,44,46-49,56-62
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { useActionData } from '@remix-run/react'
 

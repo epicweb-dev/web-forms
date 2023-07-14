@@ -78,13 +78,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 	}
 
 	if (!submission.value) {
-		return json(
-			{
-				status: 'error',
-				submission,
-			} as const,
-			{ status: 400 },
-		)
+		return json({ status: 'error', submission } as const, { status: 400 })
 	}
 	const { title, content, file, imageId, altText } = submission.value
 

@@ -1,3 +1,24 @@
 # Conform form utils
 
-TODO: write about the solution
+👨‍💼 Stellar! We've not only drastically reduced the amount of code (and
+therefore potential for bugs caused by human error as well as maintenance
+burden), but we've also improved the user experience by making the form more
+progressively enhanced.
+
+Give this a shot:
+
+- Disable JavaScript (using DevTools or go to <InlineFile file="app/root.tsx" />
+  and comment out the `<Scripts />` element there).
+- Reload the form page.
+- Remove the contents of the "Title" field.
+- Try to submit the form and notice the browser's native validation prevents you
+  from doing that. We had this already.
+- Let's simulate some backend-only validation by adding "novalidate" to the
+  `<form>`.
+- Now try to submit an invalid form.
+- Notice that the error shows up, and the title is still empty!
+
+This should illustrate to you that we've successfully implemented progressive
+enhancement for this form. The user won't lose any work in the event the
+JavaScript fails to load. This is a very important aspect of accessibility.
+Huzzah!

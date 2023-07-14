@@ -35,6 +35,7 @@ export async function action({ request }: DataFunctionArgs) {
 		// the user hasn't submitted the form yet
 		// this will happen if Conform is validating the form before submission
 		// (like if we configure Conform to validate onBlur)
+		// We'll not add this yet, we'll get to it later.
 		return json({ status: 'idle', submission } as const)
 	}
 
