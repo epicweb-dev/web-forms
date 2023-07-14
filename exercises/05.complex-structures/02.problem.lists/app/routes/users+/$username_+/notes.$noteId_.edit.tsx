@@ -261,9 +261,9 @@ function ImageChooser({
 										setPreviewImage(null)
 									}
 								}}
+								accept="image/*"
 								{...conform.input(fields.file, {
 									type: 'file',
-									accept: 'image/*',
 									ariaAttributes: true,
 								})}
 							/>
