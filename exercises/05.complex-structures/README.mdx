@@ -1,1 +1,273 @@
 # Complex Structures
+
+How would you represent an array in an HTML form? Maybe you'd do something like
+this:
+
+```html
+<form>
+	<input type="text" name="todo[]" value="Buy milk" />
+	<input type="text" name="todo[]" value="Buy eggs" />
+	<input type="text" name="todo[]" value="Wash dishes" />
+</form>
+```
+
+While that's technically valid HTML, it's not very useful. If you inspected the
+`formData`, you'd get this:
+
+```tsx
+const formData = new FormData(form)
+formData.get('todo') // null
+formData.get('todo[]') // "Buy milk"
+```
+
+Not quote what you want. The `FormData` API is similar in some ways to the
+`Headers` API and the `URLSearchParams` API. They have entries that can have
+multiple values with the same name. So, if you wanted to represent those todos
+in a form, you could do something like this:
+
+```html
+<form>
+	<input type="text" name="todo" value="Buy milk" />
+	<input type="text" name="todo" value="Buy eggs" />
+	<input type="text" name="todo" value="Wash dishes" />
+</form>
+```
+
+```tsx
+const formData = new FormData(form)
+formData.getAll('todo') // ["Buy milk", "Buy eggs", "Wash dishes"]
+```
+
+One way to think about this is that the `FormData` object is as an array of
+key/value pairs, like this:
+
+```tsx remove=1 nonumber
+// this is just a visualization, form data is not an array of arrays.
+const formData = [
+	['todo', 'Buy milk'],
+	['todo', 'Buy eggs'],
+	['todo', 'Wash dishes'],
+]
+```
+
+And the reason for this is because there's no way in HTML to represent an object
+or an array. Only key/value pairs.
+
+Another problem we have with the `FormData` API is that forms cannot be nested.
+
+So this is not allowed:
+
+```html remove=2-5 nonumber
+<form>
+	<form>
+		<input type="text" name="todo" value="Buy milk" />
+		<input type="checkbox" name="completed" checked />
+	</form>
+</form>
+```
+
+This is not allowed. This has unfortunate implications for how you might
+represent more complex data structures like an object, or array of objects.
+Let's say you want to add a "completed" property to each todo. You could do
+something like this:
+
+```html
+<form>
+	<input type="text" name="todo" value="Buy milk" />
+	<input type="checkbox" name="completed" checked />
+	<input type="text" name="todo" value="Buy eggs" />
+	<input type="checkbox" name="completed" />
+	<input type="text" name="todo" value="Wash dishes" />
+	<input type="checkbox" name="completed" checked />
+</form>
+```
+
+If we visualize this as an array of key/value pairs, it would look like this:
+
+```tsx remove=1 nonumber
+// this is just a visualization, form data is not an array of arrays.
+const formData = [
+	['todo', 'Buy milk'],
+	['completed', 'on'],
+	['todo', 'Buy eggs'],
+	['todo', 'Wash dishes'],
+	['completed', 'on'],
+]
+```
+
+Whoops, didn't I tell you, in the `FormData` API, a checked checkbox is
+represented by the string "on" and an unchecked checkbox is represented by
+just not appearing in the form data at all 😱
+
+So we can't really rely on the order of elements in the form data to convert
+this into anything useful. We need to use more specific names for each input:
+
+```html
+<form>
+	<input type="text" name="todo[0].content" value="Buy milk" />
+	<input type="checkbox" name="todo[0].complete" checked />
+	<input type="text" name="todo[1].content" value="Buy eggs" />
+	<input type="checkbox" name="todo[1].complete" />
+	<input type="text" name="todo[2].content" value="Wash dishes" />
+	<input type="checkbox" name="todo[2].complete" checked />
+</form>
+```
+
+Then we can visualize this as an array of key/value pairs:
+
+```tsx remove=1 nonumber
+// this is just a visualization, form data is not an array of arrays.
+const formData = [
+	['todo[0].content', 'Buy milk'],
+	['todo[0].complete', 'on'],
+	['todo[1].content', 'Buy eggs'],
+	['todo[2].content', 'Wash dishes'],
+	['todo[2].complete', 'on'],
+]
+```
+
+Then, we can use some fancy JS to convert this into a more useful object:
+
+```tsx
+const data = {
+	todos: [
+		{ content: 'Buy milk', complete: true },
+		{ content: 'Buy eggs', complete: false },
+		{ content: 'Wash dishes', complete: true },
+	],
+}
+```
+
+And _that_ is something we can work with! 😩 Phew, what a pain.
+
+## Conform
+
+Luckily for us, this is something Conform has already thought about and has
+great support for! With [nested objects and arrays](https://conform.guide/complex-structures).
+
+### Objects
+
+To handle nested objects, you use what Conform refers to as
+a `fieldset` which actually maps nicely to the HTML `<fieldset>` semantic
+element.
+
+Here's a quick example of this:
+
+```tsx line=8,13-16
+// example inspired from the Conform docs
+import { useForm, useFieldset, conform } from '@conform-to/react'
+
+function Example() {
+	const [form, fields] = useForm<Schema>({
+		// ... config stuff including the schema
+	})
+	const addressFields = useFieldset(form.ref, fields.address)
+
+	return (
+		<form {...form.props}>
+			<fieldset>
+				<input {...conform.input(addressFields.street)} />
+				<input {...conform.input(addressFields.zipcode)} />
+				<input {...conform.input(addressFields.city)} />
+				<input {...conform.input(addressFields.country)} />
+			</fieldset>
+		</form>
+	)
+}
+```
+
+For the `name` attribute, Conform would use `address.street`, etc. But this is
+all an implementation detail for you. Ultimately after parsing and everything,
+you'll wind up with an object:
+
+```tsx
+const data = {
+	address: {
+		street: '123 Main St',
+		zipcode: '12345',
+		city: 'New York',
+		country: 'USA',
+	},
+}
+```
+
+### Arrays
+
+For arrays, you'll use Conform's `useFieldList` hook:
+
+```tsx
+// example inspired from the Conform docs
+import { useForm, useFieldList, conform } from '@conform-to/react'
+
+function Example() {
+	const [form, fields] = useForm({
+		// ... config stuff including the schema
+	})
+	const list = useFieldList(form.ref, fields.tasks)
+
+	return (
+		<form {...form.props}>
+			<ul>
+				{list.map(task => (
+					<li key={task.key}>
+						{/* Set the name to `task[0]`, `tasks[1]` etc */}
+						<input {...conform.input(task)} />
+					</li>
+				))}
+			</ul>
+		</form>
+	)
+}
+```
+
+When that gets parsed, you'll wind up with an array:
+
+```tsx
+const data = {
+	tasks: ['Buy milk', 'Buy eggs', 'Wash dishes'],
+}
+```
+
+With arrays, it can be tricky because you often want to allow the user to add
+and remove elements of the array, so you need some extra logic to handle that.
+Luckily, Conform has utilities for exactly this with it's
+[`intent` button](https://conform.guide/intent-button) utils:
+
+```tsx
+// example inspired from the Conform docs
+import { useForm, useFieldList, conform, list } from '@conform-to/react'
+
+export default function Todos() {
+	const [form, fields] = useForm({
+		// ... config stuff including the schema
+	})
+	const taskList = useFieldList(form.ref, fields.tasks)
+
+	return (
+		<form {...form.props}>
+			<ul>
+				{taskList.map((task, index) => (
+					<li key={task.key}>
+						<input {...conform.input(task)} />
+						<button {...list.remove(tasks.name, { index })}>Delete</button>
+					</li>
+				))}
+			</ul>
+			<div>
+				<button {...list.append(tasks.name)}>Add task</button>
+			</div>
+			<button>Save</button>
+		</form>
+	)
+}
+```
+
+What's amazingly awesomely cool about this is that it actually works
+_without JavaScript_. That's just something to nerd out a bit on, but really
+what's nice about this is that it allows you to build forms that are used to
+generate complex data structures. Combine that with Zod schema validation and
+you've got yourself a really powerful form solution.
+
+- [📜 FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+- [📜 Conform Nested Objects and Arrays](https://conform.guide/complex-structures)
+- [📜 Conform Intent Button](https://conform.guide/intent-button)
