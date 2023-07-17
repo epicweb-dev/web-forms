@@ -3,6 +3,7 @@
   "private": true,
   "kcd-workshop": {
     "title": "Professional Web Forms 📝",
+    "githubRoot": "https://github.com/epicweb-dev/web-forms/blob/main",
     "root": true
   },
   "type": "module",
