@@ -10,6 +10,20 @@
 
 <hr />
 
+<div align="center">
+  <a
+    alt="Epic Web logo with the words Deployed Version"
+    href="https://epicweb-dev-web-forms.fly.dev/"
+  >
+    <img
+      width="300px"
+      src="https://github-production-user-asset-6210df.s3.amazonaws.com/1500684/254000390-447a3559-e7b9-4918-947a-1b326d239771.png"
+    />
+  </a>
+</div>
+
+<hr />
+
 <!-- prettier-ignore-start -->
 [![Build Status][build-badge]][build]
 [![GPL 3.0 License][license-badge]][license]
@@ -168,8 +182,8 @@ At the end of the workshop, please go
 [npm]: https://www.npmjs.com/
 [node]: https://nodejs.org
 [git]: https://git-scm.com/
-[build-badge]: https://img.shields.io/github/actions/workflow/status/epicweb-dev/web-forms/validate.yml?branch=main&logo=github&style=flat-square
-[build]: https://github.com/epicweb-dev/web-forms/actions?query=workflow%3Avalidate
+[build-badge]: https://img.shields.io/github/actions/workflow/status/epicweb-dev/web-forms/deploy.yml?branch=main&logo=github&style=flat-square
+[build]: https://github.com/epicweb-dev/web-forms/actions?query=workflow%3Adeploy
 [license-badge]: https://img.shields.io/badge/license-GPL%203.0%20License-blue.svg?style=flat-square
 [license]: https://github.com/epicweb-dev/web-forms/blob/main/LICENSE
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
