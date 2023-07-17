@@ -1,3 +1,51 @@
 # File Validation
 
-TODO: write this
+🦺 I'm not too pleased with the fact that we're just ignoring TypeScript.
+Remember:
+
+<callout-success>
+	TypeScript isn't making your life **worse**. It's just showing you how **bad
+	your life already is.**
+	<br />– [me](https://twitter.com/kentcdodds/status/1540025247134429185)
+</callout-success>
+
+Currently, users could upload whatever they want to our server and we don't
+validate anything at all, so it could lead to pretty broken experiences.
+
+We've already got Zod setup in this form, we just need to add support for the
+`imageId`, `file`, and `altText` fields.
+
+To help you with the Zod schema, you may checkout
+[the Conform docs on File Uploads](https://conform.guide/file-upload). Here's
+a snippet from that example:
+
+```tsx
+const schema = z.object({
+	profile: z
+		.instanceof(File)
+		// When browser constructs a form data from an empty file input, a default file
+		// entry would be created. we can validate this by checking the filename and size.
+		.refine(file => file.name !== '' && file.size !== 0, 'Profile is required'),
+})
+```
+
+In our case, the file is optional since the user may just be updating an
+existing file. But we _do_ want to warn the user if they're going to try and
+upload a file that's too large, so for our `refine` call, we can just check that
+the `file.size` isn't too big.
+
+We'll get to actually _displaying_ errors later on.
+
+<callout-danger>
+	If you're trying to submit the form and nothing is happening, it could be an
+	error that's preventing the form from submitting. But you'll not see the
+	errors until we add those. Until then, you can comment out the `onValidate`
+	function to prevent client-side validation and check out errors in the network
+	tab.
+</callout-danger>
+
+With that, you should be good to go on this one!
+
+- [📜 Conform File Uploads](https://conform.guide/file-upload)
+- [📜 Zod `instanceof`](https://zod.dev/?id=instanceof)
+- [📜 Zod `refine`](https://zod.dev/?id=refine)

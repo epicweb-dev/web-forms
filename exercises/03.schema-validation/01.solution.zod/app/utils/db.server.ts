@@ -210,7 +210,6 @@ export async function updateNote({
 		}) ?? []
 
 	const noteImages = await Promise.all(noteImagePromises)
-	console.log({ noteImages })
 	db.note.update({
 		where: { id: { equals: id } },
 		data: {

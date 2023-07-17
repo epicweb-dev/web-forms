@@ -240,7 +240,7 @@ function ImageChooser({
 								}}
 								// 🐨 add a name of "file" here:
 								type="file"
-								accept="image/*"
+								// 🐨 add accept="image/*" here so users only upload images
 							/>
 						</label>
 					</div>

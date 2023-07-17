@@ -1,3 +1,77 @@
 # Multi-part form data
 
-TODO: write this
+🧝‍♂️ I've made some adjustments you may want to know about. We now have a new
+resource route that's responsible for serving
+images: <InlineFile file="app/routes/resources+/images.$imageId.tsx" />.
+
+So now any image can be displayed by its ID via: `/resources/images/:imageId`.
+So I updated <InlineFile file="app/routes/users+/$username_+/notes.$noteId.tsx" />
+to use this new route to display the images for notes. So that's all ready for
+us to start storing images for notes.
+
+Another thing I did to help prepare for your work is I put together a fancy
+`ImageChooser` component you can use for the user to have a nicer UX for
+selecting an image than the default file input. It's a bit more involved than
+you have time for, but feel free to explore how that's implemented if you've got
+time. You will be making some changes to it during the workshop.
+
+You'll find it at the bottom
+of <InlineFile file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx" line="182" />.
+I also updated the loader to load the note's images if it already has images:
+
+<CodeFile
+	file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx"
+	range="17-35"
+	highlight="32"
+/>
+
+So you can use that to preload the images for the note if it already has images
+when the user goes to edit the note.
+
+As a reminder, you can check the Diff tab and select the previous solution step
+vs this problem step to see all the changes I made.
+
+Alright, with that background, I think you're ready to make your adjustments!
+Good luck!
+
+👨‍💼 Thanks Kellie! Alright, we need you to make adjustments so we can start
+uploading images to the notes page. We'll be making the minimal changes for this
+and we'll progressively improve it in the next steps. That means we'll be
+ignoring some of the TypeScript stuff (sorry Lily! 🦺😢).
+
+At a high-level, here's what you'll be adjusting:
+
+- Update the `encType` of the form so we can accept file uploads
+- Update the `type` on our file upload input so it's a file input
+- Properly parse the request in our action so it can handle the file upload
+  using Remix's memory upload handler
+- Render a hidden input for the existing image ID if it does exist so it's
+  preserved if the user's just wanting to update the alt text.
+
+Here's that example again of how to process the file in your action:
+
+```tsx
+import {
+	unstable_createMemoryUploadHandler as createMemoryUploadHandler,
+	unstable_parseMultipartFormData as parseMultipartFormData,
+} from '@remix-run/node'
+export const action = async ({ request }: ActionArgs) => {
+	const uploadHandler = createMemoryUploadHandler({
+		maxPartSize: 1024 * 1024 * 5, // 5 MB
+	})
+	const formData = await parseMultipartFormData(request, uploadHandler)
+
+	const file = formData.get('avatar')
+
+	// file is a "File" (https://mdn.io/File) polyfilled for node
+	// ... etc
+}
+```
+
+The emoji team (🐨💰🦺💣) will be in there to help guide you through this one.
+Enjoy!
+
+- [📜 `input[type=file]`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file)
+- [📜 `File`](https://developer.mozilla.org/en-US/docs/Web/API/File)
+- [📜 **`unstable_parseMultipartFormData`**](https://remix.run/docs/en/main/utils/parse-multipart-form-data)
+- [📜 **`unstable_createMemoryUploadHandler`**](https://remix.run/docs/en/main/utils/unstable-create-memory-upload-handler)
