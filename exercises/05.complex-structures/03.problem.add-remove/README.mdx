@@ -1,3 +1,83 @@
 # Add / Remove Items
 
-TODO: write this
+Being able to have a list of images isn't all that useful if user's can't add
+or remove items to and from the list. The trouble with this is we normally need
+to worry about state in order to keep track of the lists. Conform handles this
+for us though. In fact, it goes further and allows us to add and remove items
+using the form itself. This means the add/remove functionality will work even
+if the JavaScript hasn't loaded on the page yet.
+
+This gives us a nicer mental model than using state on the page.
+
+To accomplish this, Conform uses
+[a special "intent" button](https://conform.guide/intent-button). It actually
+supports several things you may typically use state for. For example, if you
+want to give the user a "Validate" button which validates the form, but doesn't
+actually submit it, you could do that with Conform's
+[validate intent](https://conform.guide/intent-button#validation).
+
+Enough with the words, let's look at an example. This probably looks familiar
+since it's the same one we used in the last step:
+
+```tsx lines=25,30
+import { useForm, useFieldList, list } from '@conform-to/react'
+
+/**
+ * Consider the schema as follow:
+ */
+type Schema = {
+	items: string[]
+}
+
+function Example() {
+	const [form, { items }] = useForm<Schema>()
+	const itemsList = useFieldList(form.ref, items)
+
+	return (
+		<fieldset ref={ref}>
+			{itemsList.map((item, index) => (
+				<div key={item.key}>
+					{/* Setup an input per item */}
+					<input name={item.name} />
+
+					{/* Error of each item */}
+					<span>{item.error}</span>
+
+					{/* Setup a delete button (Note: It is `items` not `item`) */}
+					<button {...list.remove(items.name, { index })}>Delete</button>
+				</div>
+			))}
+
+			{/* Setup a button that can append a new row with optional default value */}
+			<button {...list.append(items.name, { defaultValue: '' })}>add</button>
+		</fieldset>
+	)
+}
+```
+
+But it does require a little change to our `action` because Conform will
+actually submit the form in the no-JS case and we don't want to process the
+form's submission if the user's just adding/removing items. So we need to add
+a check in our `action` to return the submission if the `intent` is not `submit`.
+For example:
+
+```tsx
+const submission = parse(formData, {
+	schema: RocketSchema,
+	acceptMultipleErrors: () => true,
+})
+
+if (submission.intent !== 'submit') {
+	// I guess they're doing something other than submitting, so we'll just send
+	// the submission back and not process it.
+	return json({ status: 'idle', submission } as const)
+}
+
+// they're submitting, let's go!
+```
+
+Let's add a "❌" button to delete images and a "➕ Image" button to add new
+images.
+
+- [📜 Conform Intent Button](https://conform.guide/intent-button)
+- [📜 Conform Nested List](https://conform.guide/complex-structures#nested-list)

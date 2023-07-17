@@ -1,3 +1,82 @@
 # Nested Object
 
-TODO: write this
+So far we've just put the image information as properties on our
+`NoteEditorSchema`, but the `id`, `file`, and `altText` fields are really all
+just part of a single object: An image. So it would be better to represent this
+as a nested set of field properties under the `NoteEditorSchema` under `image`.
+
+However, because forms don't support nested objects, we'll need to use a utility
+from Conform to help us out. Here's an example that resembles what you'll be
+doing:
+
+```tsx lines=16,22-23
+// example inspired from the Conform docs
+import {
+	useForm,
+	useFieldset,
+	conform,
+	type FieldConfig,
+} from '@conform-to/react'
+
+function Example() {
+	const [form, fields] = useForm<Schema>({
+		// ... config stuff including the schema
+	})
+
+	return (
+		<form {...form.props}>
+			<AddressFields config={fields.address} />
+		</form>
+	)
+}
+
+function AddressFields({ config }: { config: FieldConfig<Address> }) {
+	const ref = useRef<HTMLFieldSetElement>(null)
+	const fields = useFieldset(ref, config)
+	return (
+		<fieldset ref={ref}>
+			<input {...conform.input(fields.street)} />
+			<input {...conform.input(fields.zipcode)} />
+			<input {...conform.input(fields.city)} />
+			<input {...conform.input(fields.country)} />
+		</fieldset>
+	)
+}
+```
+
+We'll also get our type by using Zod's inference utility:
+
+```tsx
+const RocketSchema = z.object({
+	// ...
+})
+type RocketType = z.infer<typeof RocketSchema>
+
+function RocketFields({ config }: { config: FieldConfig<RocketType> }) {
+	// ...
+}
+```
+
+So, fundamentally, we want to make this change:
+
+```ts remove=4-6 add=7-11
+{
+	title: string
+	content: string
+	imageId: string
+	file: File
+	altText: string
+	image: {
+		id: string
+		file: File
+		altText: string
+	}
+}
+```
+
+And we want that hooked up to our form. That should be enough to get you going!
+
+- [📜 `useFieldset`](https://conform.guide/api/react#usefieldset)
+- [📜 Conform Complex Structures](https://conform.guide/complex-structures)
+- [📜 Zod Type Inference](https://zod.dev/?id=type-inference)
+- [📜 React ref](https://react.dev/reference/react/useRef)

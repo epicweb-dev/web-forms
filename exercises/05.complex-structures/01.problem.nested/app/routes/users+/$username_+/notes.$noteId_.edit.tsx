@@ -47,9 +47,12 @@ const contentMaxLength = 10000
 
 const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
 
+// 🐨 make a ImageFieldsetSchema that's an object which has id, file, and altText
+
 const NoteEditorSchema = z.object({
 	title: z.string().min(titleMinLength).max(titleMaxLength),
 	content: z.string().min(contentMinLength).max(contentMaxLength),
+	// 🐨 move these three properties to the ImageFieldsetSchema
 	imageId: z.string().optional(),
 	file: z
 		.instanceof(File)
@@ -58,6 +61,7 @@ const NoteEditorSchema = z.object({
 		}, 'File size must be less than 3MB')
 		.optional(),
 	altText: z.string().optional(),
+	// 🐨 add an image property that's assigned to the ImageFIeldsetSchema
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -73,19 +77,17 @@ export async function action({ request, params }: DataFunctionArgs) {
 		acceptMultipleErrors: () => true,
 	})
 
-	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
-	}
-
 	if (!submission.value) {
 		return json({ status: 'error', submission } as const, { status: 400 })
 	}
+	// 🐨 just grab the "image" instead of file, imageId, and altText
 	const { title, content, file, imageId, altText } = submission.value
 
 	await updateNote({
 		id: params.noteId,
 		title,
 		content,
+		// 🐨 just pass the image in the array instead of constructing an object here
 		images: [{ file, id: imageId, altText }],
 	})
 
@@ -128,6 +130,9 @@ export default function NoteEdit() {
 		defaultValue: {
 			title: data.note.title,
 			content: data.note.content,
+			// 🐨 add a default value for the image
+			// 💰 data.note.images[0]
+			// you'll be referencing the default values in the component below.
 		},
 	})
 
@@ -167,6 +172,7 @@ export default function NoteEdit() {
 					</div>
 					<div>
 						<Label>Image</Label>
+						{/* 🐨 pass the fields.image config instead of the image itself */}
 						<ImageChooser image={data.note.images[0]} />
 					</div>
 				</div>
@@ -192,20 +198,29 @@ export default function NoteEdit() {
 function ImageChooser({
 	image,
 }: {
+	// 🐨 change this prop to "config" which is Conform FieldConfig of the ImageFieldsetSchema
 	image?: { id: string; altText?: string | null }
 }) {
+	// 🐨 create a ref for the fieldset
+	// 🐨 create a conform fields object with useFieldset
+
+	// 🐨 the existingImage should now be based on whether fields.id.defaultValue is set
 	const existingImage = Boolean(image)
 	const [previewImage, setPreviewImage] = useState<string | null>(
+		// 🐨 this should now reference fields.id.defaultValue
 		existingImage ? `/resources/images/${image?.id}` : null,
 	)
+	// 🐨 this should now reference fields.altText.defaultValue
 	const [altText, setAltText] = useState(image?.altText ?? '')
 
 	return (
+		// 🐨 pass the ref prop to fieldset
 		<fieldset>
 			<div className="flex gap-3">
 				<div className="w-32">
 					<div className="relative h-32 w-32">
 						<label
+							// 🐨 update this htmlFor to reference fields.id.id
 							htmlFor="image-input"
 							className={cn('group absolute h-32 w-32 rounded-lg', {
 								'bg-accent opacity-40 focus-within:opacity-100 hover:opacity-100':
@@ -232,10 +247,15 @@ function ImageChooser({
 								</div>
 							)}
 							{existingImage ? (
+								// 🐨 update this to use the conform.input helper on
+								// fields.image.id (make sure it stays hidden though)
+								// 💰 make sure to use the ariaAttributes option
 								<input name="imageId" type="hidden" value={image?.id} />
 							) : null}
 							<input
+								// 💣 remove this id
 								id="image-input"
+								aria-label="Image"
 								className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
 								onChange={event => {
 									const file = event.target.files?.[0]
@@ -250,20 +270,27 @@ function ImageChooser({
 										setPreviewImage(null)
 									}
 								}}
+								// 💣 remove the name and type props
 								name="file"
 								type="file"
 								accept="image/*"
+								// 🐨 add the props from conform.input with the fields.file
+								// 💰 make sure to use the ariaAttributes option
 							/>
 						</label>
 					</div>
 				</div>
 				<div className="flex-1">
+					{/* 🐨 update this htmlFor to reference fields.altText.id */}
 					<Label htmlFor="alt-text">Alt Text</Label>
 					<Textarea
+						// 💣 remove the id, name, and defaultValue
 						id="alt-text"
 						name="altText"
 						defaultValue={altText}
 						onChange={e => setAltText(e.currentTarget.value)}
+						// 🐨 add the props from conform.textarea with the fields.altText
+						// 💰 make sure to use the ariaAttributes option
 					/>
 				</div>
 			</div>

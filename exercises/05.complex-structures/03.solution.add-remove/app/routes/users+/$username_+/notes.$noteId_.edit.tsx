@@ -176,13 +176,8 @@ export default function NoteEdit() {
 						</div>
 					</div>
 					<div>
-						<Label id="new-note-images-label" asChild>
-							<h3>Images</h3>
-						</Label>
-						<ul
-							aria-labelledby="new-note-images-label"
-							className="flex flex-col gap-4"
-						>
+						<Label>Images</Label>
+						<ul className="flex flex-col gap-4">
 							{imageList.map((image, index) => (
 								<li
 									key={image.key}
@@ -192,7 +187,8 @@ export default function NoteEdit() {
 										className="absolute right-0 top-0 text-destructive"
 										{...list.remove(fields.images.name, { index })}
 									>
-										❌
+										<span aria-hidden>❌</span>{' '}
+										<span className="sr-only">Remove image {index + 1}</span>
 									</button>
 									<ImageChooser config={image} />
 								</li>
@@ -203,7 +199,8 @@ export default function NoteEdit() {
 						className="mt-3"
 						{...list.append(fields.images.name, { defaultValue: {} })}
 					>
-						➕ Image
+						<span aria-hidden>➕ Image</span>{' '}
+						<span className="sr-only">Add image</span>
 					</Button>
 				</div>
 				<ErrorList id={form.errorId} errors={form.errors} />
@@ -282,6 +279,7 @@ function ImageChooser({
 								/>
 							) : null}
 							<input
+								aria-label="Image"
 								className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
 								onChange={event => {
 									const file = event.target.files?.[0]

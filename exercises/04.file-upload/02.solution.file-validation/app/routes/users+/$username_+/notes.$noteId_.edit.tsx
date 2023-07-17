@@ -73,10 +73,6 @@ export async function action({ request, params }: DataFunctionArgs) {
 		acceptMultipleErrors: () => true,
 	})
 
-	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
-	}
-
 	if (!submission.value) {
 		return json({ status: 'error', submission } as const, { status: 400 })
 	}
@@ -236,6 +232,7 @@ function ImageChooser({
 							) : null}
 							<input
 								id="image-input"
+								aria-label="Image"
 								className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
 								onChange={event => {
 									const file = event.target.files?.[0]

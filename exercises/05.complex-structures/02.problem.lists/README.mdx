@@ -1,3 +1,58 @@
 # Field Lists
 
-TODO: write this
+👨‍💼 We want users to be able to upload multiple images to the notes. So we're
+going to need to adjust our Zod config to allow for an array:
+
+```tsx
+const RocketSchema = z.object({})
+const RocketsSchema = z.array(RocketSchema)
+```
+
+This is easy enough, but remember that Forms don't support arrays. So we need to
+reach for Conform's utilities to make this a possibility. Luckily, Conform has
+a handy utility called
+[`useFieldList`](https://conform.guide/api/react#usefieldlist) which allows you
+to represent an array of fields in a Form. Here's the example from the Conform
+docs:
+
+```tsx
+import { useForm, useFieldList, list } from '@conform-to/react'
+
+/**
+ * Consider the schema as follow:
+ */
+type Schema = {
+	items: string[]
+}
+
+function Example() {
+	const [form, { items }] = useForm<Schema>()
+	const itemsList = useFieldList(form.ref, items)
+
+	return (
+		<fieldset ref={ref}>
+			{itemsList.map((item, index) => (
+				<div key={item.key}>
+					{/* Setup an input per item */}
+					<input name={item.name} />
+
+					{/* Error of each item */}
+					<span>{item.error}</span>
+
+					{/* Setup a delete button (Note: It is `items` not `item`) */}
+					<button {...list.remove(items.name, { index })}>Delete</button>
+				</div>
+			))}
+
+			{/* Setup a button that can append a new row with optional default value */}
+			<button {...list.append(items.name, { defaultValue: '' })}>add</button>
+		</fieldset>
+	)
+}
+```
+
+You'll notice the `list` utilities in there. We'll get to that in the next step.
+For now, just focus on getting the `useFieldList` working for our images.
+
+- [📜 Zod arrays](https://zod.dev/?id=arrays)
+- [📜 Conform `useFieldList`](https://conform.guide/api/react#usefieldlist)

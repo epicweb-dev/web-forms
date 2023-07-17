@@ -63,6 +63,8 @@ const ImageFieldsetSchema = z.object({
 const NoteEditorSchema = z.object({
 	title: z.string().min(titleMinLength).max(titleMaxLength),
 	content: z.string().min(contentMinLength).max(contentMaxLength),
+	// 🐨 rename this to "images" and put ImageFieldsetSchema in a z.array()
+	// 🐨 also, make it .optional()
 	image: ImageFieldsetSchema,
 })
 
@@ -79,14 +81,12 @@ export async function action({ request, params }: DataFunctionArgs) {
 		acceptMultipleErrors: () => true,
 	})
 
-	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
-	}
-
 	if (!submission.value) {
 		return json({ status: 'error', submission } as const, { status: 400 })
 	}
+	// 🐨 update this to "images"
 	const { title, content, image } = submission.value
+	// 🐨 now just pass the whole images array here.
 	await updateNote({ id: params.noteId, title, content, images: [image] })
 
 	return redirect(`/users/${params.username}/notes/${params.noteId}`)
@@ -128,9 +128,14 @@ export default function NoteEdit() {
 		defaultValue: {
 			title: data.note.title,
 			content: data.note.content,
+			// 🐨 rename this to "images" and pass all of them
+			// 💰 For now, set it to data.note.images.length ? data.note.images : [{}],
+			// that way if there isn't an image yet, you'll still be able to create one.
+			// We'll fix this in the next step.
 			image: data.note.images[0],
 		},
 	})
+	// 🐨 create the imageList with useFieldList here
 
 	return (
 		<div className="absolute inset-0">
@@ -168,6 +173,7 @@ export default function NoteEdit() {
 					</div>
 					<div>
 						<Label>Image</Label>
+						{/* 🐨 render the ImageChooser inside a ul mapping the imageList into li elements */}
 						<ImageChooser config={fields.image} />
 					</div>
 				</div>
@@ -247,6 +253,7 @@ function ImageChooser({
 								/>
 							) : null}
 							<input
+								aria-label="Image"
 								className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
 								onChange={event => {
 									const file = event.target.files?.[0]

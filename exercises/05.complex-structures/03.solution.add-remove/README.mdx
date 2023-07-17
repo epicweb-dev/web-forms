@@ -1,3 +1,20 @@
 # Add / Remove Items
 
-TODO: write about the solution
+👨‍💼 Hooray, we've got a great solution for adding multiple images to our notes.
+Users are going to love this feature.
+
+💯 Did you take the time to think about the screen reader experience of our "❌"
+and "➕ Image" buttons? You can use `sr-only` and `aria-hidden` to visually
+hide/show different elements for screen readers. So here's how it was
+implemented in my solution:
+
+<details>
+<summary>Spoiler alert!</summary>
+
+<CodeFile
+	file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx"
+	range="186-192,198-204"
+	highlight="190-191,202-203"
+/>
+
+</details>

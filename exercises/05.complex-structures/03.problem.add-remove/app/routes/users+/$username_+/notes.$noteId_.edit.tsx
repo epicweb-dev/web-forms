@@ -80,9 +80,8 @@ export async function action({ request, params }: DataFunctionArgs) {
 		acceptMultipleErrors: () => true,
 	})
 
-	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
-	}
+	// 🐨 If the submission.intent is not "submit" then return the submission with
+	// a status of 'idle' and the submission.
 
 	if (!submission.value) {
 		return json({ status: 'error', submission } as const, { status: 400 })
@@ -142,6 +141,9 @@ export default function NoteEdit() {
 				{...form.props}
 				encType="multipart/form-data"
 			>
+				{/* 🐨 add a hidden submit button here so the first button in the form is a submit button */}
+				{/* 🦉 otherwise, when the user hits [Enter] in the title input it'll trigger the first submit button which will delete an image instead of submit the form 😬 */}
+				{/* 💰 to hide it, you can use the tailwind class name "hidden" */}
 				<div className="flex flex-col gap-1">
 					<div>
 						<Label htmlFor={fields.title.id}>Title</Label>
@@ -169,20 +171,26 @@ export default function NoteEdit() {
 						</div>
 					</div>
 					<div>
-						<Label id="new-note-images-label" asChild>
-							<h3>Images</h3>
-						</Label>
-						<ul
-							aria-labelledby="new-note-images-label"
-							className="flex flex-col gap-4"
-						>
+						<Label>Images</Label>
+						<ul className="flex flex-col gap-4">
 							{imageList.map(image => (
-								<li key={image.key}>
+								<li
+									key={image.key}
+									className="relative border-b-2 border-muted-foreground"
+								>
+									{/* 🐨 add a delete button here with list.remove and fields.images.name */}
+									{/* 💰 here's a nice className="absolute right-0 top-0 text-destructive" */}
+									{/* 🐨 you can use "❌" as the button text (we don't have app icons yet) */}
+									{/* 💯 if you have extra time, consider the screen reader experience. How could you make it better? */}
 									<ImageChooser config={image} />
 								</li>
 							))}
 						</ul>
 					</div>
+					{/* 🐨 add a button here with list.append and fields.images.name to add another image */}
+					{/* 💰 you'll want to set the defaultValue to "{}" (otherwise it'll default to null which is invalid according to our schema) */}
+					{/* 🐨 you can use "➕ Image" as the button text */}
+					{/* 💯 if you have extra time, consider the screen reader experience. How could you make it better? */}
 				</div>
 				<ErrorList id={form.errorId} errors={form.errors} />
 			</Form>
@@ -260,6 +268,7 @@ function ImageChooser({
 								/>
 							) : null}
 							<input
+								aria-label="Image"
 								className="absolute left-0 top-0 z-0 h-32 w-32 cursor-pointer opacity-0"
 								onChange={event => {
 									const file = event.target.files?.[0]
