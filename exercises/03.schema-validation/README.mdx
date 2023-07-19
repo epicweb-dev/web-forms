@@ -187,47 +187,54 @@ Conform has an adapter for Zod schemas with utilities that are perfect for what
 we're looking for. Here's an example:
 
 ```tsx
-import { conform, useForm } from '@conform-to/react'
+import { conform, useForm, report } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { Form } from '@remix-run/react'
 import { json, redirect } from '@remix-run/node'
 import { z } from 'zod'
 
 const LoginSchema = z.object({
-	email: z.string().min(1, 'Email is required').email('Email is invalid'),
-	password: z.string().min(1, 'Password is required'),
+	email: z
+		.string({ required_error: 'Email is required' })
+		.email('Email is invalid'),
+	password: z.string({ required_error: 'Password is required' }),
 })
-
-// https://github.com/edmundhung/conform/issues/211
-const FORM_ERROR = ''
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: LoginSchema,
-		// This makes it so if a field has more than one error, we'll display all of them
-		// https://github.com/edmundhung/conform/issues/215
-		acceptMultipleErrors: () => true,
 	})
 
 	if (submission.intent !== 'submit') {
 		// the user hasn't submitted the form yet
 		// this will happen if Conform is validating the form before submission
 		// (like if we configure Conform to validate onBlur)
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission: report(submission) } as const)
 	}
 
 	if (!submission.value) {
 		// there's no value because there is an error in the form
-		return json({ status: 'error', submission } as const, { status: 400 })
+		return json({ status: 'error', submission: report(submission) } as const, {
+			status: 400,
+		})
 	}
 
 	const { email, password } = submission.value
 
 	const isAuthenticated = await authenticate({ email, password })
 	if (!isAuthenticated) {
-		submission.error[FORM_ERROR] = ['Invalid email or password']
-		return json({ status: 'error', submission } as const, { status: 401 })
+		return json(
+			{
+				status: 'error',
+				submission: report(submission, {
+					formError: ['Invalid email or password'],
+				}),
+			} as const,
+			{
+				status: 401,
+			},
+		)
 	}
 
 	return redirect('/dashboard')
@@ -248,14 +255,13 @@ export default function LoginForm() {
 		<Form method="post" {...form.props}>
 			<div>
 				<label htmlFor={fields.email.id}>Email</label>
-				<input {...conform.input(fields.email, { ariaAttributes: true })} />
+				<input {...conform.input(fields.email)} />
 				<ErrorList id={fields.email.errorId} errors={fields.email.errors} />
 			</div>
 			<div>
 				<label htmlFor={fields.password.id}>Password</label>
 				<input
 					{...conform.input(fields.password, {
-						ariaAttributes: true,
 						type: 'password',
 					})}
 				/>

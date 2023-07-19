@@ -1,4 +1,4 @@
-import { conform, useForm } from '@conform-to/react'
+import { conform, useForm, report } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, useActionData, useLoaderData } from '@remix-run/react'
@@ -53,11 +53,12 @@ export async function action({ request, params }: DataFunctionArgs) {
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
-		acceptMultipleErrors: () => true,
 	})
 
 	if (!submission.value) {
-		return json({ status: 'error', submission } as const, { status: 400 })
+		return json({ status: 'error', submission: report(submission) } as const, {
+			status: 400,
+		})
 	}
 	const { title, content } = submission.value
 
@@ -126,10 +127,7 @@ export default function NoteEdit() {
 				<div className="flex flex-col gap-1">
 					<div>
 						<Label htmlFor={fields.title.id}>Title</Label>
-						<Input
-							autoFocus
-							{...conform.input(fields.title, { ariaAttributes: true })}
-						/>
+						<Input autoFocus {...conform.input(fields.title)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.title.errorId}
@@ -139,9 +137,7 @@ export default function NoteEdit() {
 					</div>
 					<div>
 						<Label htmlFor={fields.content.id}>Content</Label>
-						<Textarea
-							{...conform.textarea(fields.content, { ariaAttributes: true })}
-						/>
+						<Textarea {...conform.textarea(fields.content)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.content.errorId}

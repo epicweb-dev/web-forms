@@ -49,7 +49,6 @@ export async function action({ request, params }: DataFunctionArgs) {
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
-		acceptMultipleErrors: () => true,
 	})
 
 	if (!submission.value) {

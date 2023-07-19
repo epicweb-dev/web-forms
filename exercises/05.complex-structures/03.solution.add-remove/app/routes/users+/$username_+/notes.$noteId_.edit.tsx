@@ -4,6 +4,7 @@ import {
 	useFieldList,
 	useFieldset,
 	useForm,
+	report,
 	type FieldConfig,
 } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
@@ -78,15 +79,16 @@ export async function action({ request, params }: DataFunctionArgs) {
 
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
-		acceptMultipleErrors: () => true,
 	})
 
 	if (submission.intent !== 'submit') {
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission: report(submission) } as const)
 	}
 
 	if (!submission.value) {
-		return json({ status: 'error', submission } as const, { status: 400 })
+		return json({ status: 'error', submission: report(submission) } as const, {
+			status: 400,
+		})
 	}
 	const { title, content, images } = submission.value
 	await updateNote({ id: params.noteId, title, content, images })
@@ -152,10 +154,7 @@ export default function NoteEdit() {
 				<div className="flex flex-col gap-1">
 					<div>
 						<Label htmlFor={fields.title.id}>Title</Label>
-						<Input
-							autoFocus
-							{...conform.input(fields.title, { ariaAttributes: true })}
-						/>
+						<Input autoFocus {...conform.input(fields.title)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.title.errorId}
@@ -165,9 +164,7 @@ export default function NoteEdit() {
 					</div>
 					<div>
 						<Label htmlFor={fields.content.id}>Content</Label>
-						<Textarea
-							{...conform.textarea(fields.content, { ariaAttributes: true })}
-						/>
+						<Textarea {...conform.textarea(fields.content)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.content.errorId}
@@ -236,11 +233,7 @@ function ImageChooser({
 	const [altText, setAltText] = useState(fields.altText.defaultValue ?? '')
 
 	return (
-		<fieldset
-			ref={ref}
-			aria-invalid={Boolean(config.errors?.length) || undefined}
-			aria-describedby={config.errors?.length ? config.errorId : undefined}
-		>
+		<fieldset ref={ref} {...conform.fieldset(config)}>
 			<div className="flex gap-3">
 				<div className="w-32">
 					<div className="relative h-32 w-32">
@@ -274,7 +267,6 @@ function ImageChooser({
 								<input
 									{...conform.input(fields.id, {
 										type: 'hidden',
-										ariaAttributes: true,
 									})}
 								/>
 							) : null}
@@ -297,7 +289,6 @@ function ImageChooser({
 								accept="image/*"
 								{...conform.input(fields.file, {
 									type: 'file',
-									ariaAttributes: true,
 								})}
 							/>
 						</label>
@@ -310,7 +301,7 @@ function ImageChooser({
 					<Label htmlFor={fields.altText.id}>Alt Text</Label>
 					<Textarea
 						onChange={e => setAltText(e.currentTarget.value)}
-						{...conform.textarea(fields.altText, { ariaAttributes: true })}
+						{...conform.textarea(fields.altText)}
 					/>
 					<div className="min-h-[32px] px-4 pb-3 pt-1">
 						<ErrorList
