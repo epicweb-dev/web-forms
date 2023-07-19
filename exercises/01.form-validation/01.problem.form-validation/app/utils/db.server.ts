@@ -12,31 +12,6 @@ import { singleton } from './singleton.server.ts'
 
 const getId = () => crypto.randomBytes(16).toString('hex').slice(0, 8)
 
-/*
-
-model File {
-  id   String @id @unique @default(cuid())
-  blob Bytes
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  image     Image?
-}
-
-model Image {
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  fileId String @unique
-
-  contentType String
-  altText     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User?
-}
-*/
-
 export const db = singleton('db', () => {
 	const db = factory({
 		user: {
