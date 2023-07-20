@@ -16,7 +16,6 @@ case). So when the `title` looks good, it should render HTML like this:
 		id="note-title"
 		name="title"
 		required=""
-		minlength="1"
 		maxlength="100"
 		value="Basic Koala Facts"
 	/>
@@ -26,7 +25,7 @@ case). So when the `title` looks good, it should render HTML like this:
 
 And when the `title` has an error, it should render HTML like this:
 
-```html lines=11,12
+```html lines=10,11
 <div>
 	<label class="..." for="note-title">Title</label>
 	<input
@@ -34,7 +33,6 @@ And when the `title` has an error, it should render HTML like this:
 		id="note-title"
 		name="title"
 		required=""
-		minlength="1"
 		maxlength="100"
 		value="Basic Koala Facts"
 		aria-invalid="true"

@@ -4,14 +4,14 @@ It doesn't take long before you are really tired of writing code that looks like
 this:
 
 ```tsx
-if (title.length < titleMinLength) {
-	errors.fieldErrors.title.push('Title must be at least 1 character')
+if (title === '') {
+	errors.fieldErrors.title.push('Title is required')
 }
 if (title.length > titleMaxLength) {
 	errors.fieldErrors.title.push('Title must be at most 100 characters')
 }
-if (content.length < contentMinLength) {
-	errors.fieldErrors.content.push('Content must be at least 1 character')
+if (content === '') {
+	errors.fieldErrors.content.push('Content is required')
 }
 if (content.length > contentMaxLength) {
 	errors.fieldErrors.content.push('Content must be at most 10000 characters')
@@ -24,10 +24,10 @@ If you haven't felt the draw to write a utility to improve this yet, you will.
 For example, we could do something like this:
 
 ```tsx
-function validate(value: string, min: number, max: number) {
+function validate(value: string, max: number) {
 	const errors = []
-	if (value.length < min) {
-		errors.push(`Must be at least ${min} characters`)
+	if (value === '') {
+		errors.push('Required')
 	}
 	if (value.length > max) {
 		errors.push(`Must be at most ${max} characters`)
@@ -35,12 +35,8 @@ function validate(value: string, min: number, max: number) {
 	return errors
 }
 
-errors.fieldErrors.title.push(
-	...validate(title, titleMinLength, titleMaxLength),
-)
-errors.fieldErrors.content.push(
-	...validate(content, contentMinLength, contentMaxLength),
-)
+errors.fieldErrors.title.push(...validate(title, titleMaxLength))
+errors.fieldErrors.content.push(...validate(content, contentMaxLength))
 ```
 
 Luckily, there are already libraries that do this for us so we don't have to
@@ -50,8 +46,8 @@ looks like this:
 
 ```tsx
 z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 })
 ```
 

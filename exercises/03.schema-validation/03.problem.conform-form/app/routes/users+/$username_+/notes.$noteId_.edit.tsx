@@ -33,14 +33,12 @@ export async function loader({ params }: DataFunctionArgs) {
 	})
 }
 
-const titleMinLength = 1
 const titleMaxLength = 100
-const contentMinLength = 1
 const contentMaxLength = 10000
 
 const NoteEditorSchema = z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -145,7 +143,6 @@ export default function NoteEdit() {
 							name="title"
 							defaultValue={data.note.title}
 							required
-							minLength={titleMinLength}
 							maxLength={titleMaxLength}
 							aria-invalid={titleHasErrors || undefined}
 							aria-describedby={titleErrorId}
@@ -168,7 +165,6 @@ export default function NoteEdit() {
 							name="content"
 							defaultValue={data.note.content}
 							required
-							minLength={contentMinLength}
 							maxLength={contentMaxLength}
 							aria-invalid={contentHasErrors || undefined}
 							aria-describedby={contentErrorId}

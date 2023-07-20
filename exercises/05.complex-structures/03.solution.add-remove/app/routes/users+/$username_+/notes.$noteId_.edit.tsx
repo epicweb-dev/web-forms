@@ -48,9 +48,7 @@ export async function loader({ params }: DataFunctionArgs) {
 	})
 }
 
-const titleMinLength = 1
 const titleMaxLength = 100
-const contentMinLength = 1
 const contentMaxLength = 10000
 
 const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
@@ -64,8 +62,8 @@ const ImageFieldsetSchema = z.object({
 })
 
 const NoteEditorSchema = z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 	images: z.array(ImageFieldsetSchema).optional(),
 })
 
