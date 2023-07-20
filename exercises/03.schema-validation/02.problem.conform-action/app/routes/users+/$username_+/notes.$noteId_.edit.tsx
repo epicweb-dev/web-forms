@@ -78,13 +78,8 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	// The errors in conform can also be a single string, so you'll need to handle that case
-	// This will be changed soon: https://github.com/edmundhung/conform/issues/212
-	// 🐨 add "| string" to this type
 	errors?: Array<string> | null
 }) {
-	// 🐨 if the errors is null, return null
-	// 🐨 if the errors is a string, turn it into an array of that one string
 	return errors?.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (

@@ -277,7 +277,7 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	errors?: Array<string> | string | null
+	errors?: Array<string> | null
 }) {
 	if (!errors) return null
 	errors = Array.isArray(errors) ? errors : [errors]

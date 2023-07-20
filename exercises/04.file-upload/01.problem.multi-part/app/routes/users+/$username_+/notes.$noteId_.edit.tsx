@@ -80,12 +80,9 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	errors?: Array<string> | string | null
+	errors?: Array<string> | null
 }) {
-	if (!errors) return null
-	errors = Array.isArray(errors) ? errors : [errors]
-
-	return errors.length ? (
+	return errors?.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
 				<li key={i} className="text-[10px] text-foreground-danger">
