@@ -21,11 +21,7 @@ a snippet from that example:
 
 ```tsx
 const schema = z.object({
-	profile: z
-		.instanceof(File)
-		// When browser constructs a form data from an empty file input, a default file
-		// entry would be created. we can validate this by checking the filename and size.
-		.refine(file => file.name !== '' && file.size !== 0, 'Profile is required'),
+	profile: z.instanceof(File, { message: 'Profile is required' }),
 })
 ```
 
