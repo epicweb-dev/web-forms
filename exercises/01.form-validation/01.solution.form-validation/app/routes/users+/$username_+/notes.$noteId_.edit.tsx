@@ -58,7 +58,6 @@ export default function NoteEdit() {
 							name="title"
 							defaultValue={data.note.title}
 							required
-							minLength={1}
 							maxLength={100}
 						/>
 					</div>
@@ -69,7 +68,6 @@ export default function NoteEdit() {
 							name="content"
 							defaultValue={data.note.content}
 							required
-							minLength={1}
 							maxLength={10000}
 						/>
 					</div>

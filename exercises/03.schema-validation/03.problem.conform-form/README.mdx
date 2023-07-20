@@ -10,16 +10,18 @@ between the UI and the server!
 Here's the relevant bits from the example we had in our background info for this
 exercise:
 
-```tsx lines=1-2,16-23,26,28-30,33-43,45
-import { conform, useForm } from '@conform-to/react'
+```tsx lines=1-2,18-25,28,30-32,35-40,42
+import { conform, useForm, report } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { Form } from '@remix-run/react'
 import { json, redirect } from '@remix-run/node'
 import { z } from 'zod'
 
 const LoginSchema = z.object({
-	email: z.string().min(1, 'Email is required').email('Email is invalid'),
-	password: z.string().min(1, 'Password is required'),
+	email: z
+		.string({ required_error: 'Email is required' })
+		.email('Email is invalid'),
+	password: z.string({ required_error: 'Password is required' }),
 })
 
 // ...
@@ -39,17 +41,12 @@ export default function LoginForm() {
 		<Form method="post" {...form.props}>
 			<div>
 				<label htmlFor={fields.email.id}>Email</label>
-				<input {...conform.input(fields.email, { ariaAttributes: true })} />
+				<input {...conform.input(fields.email)} />
 				<ErrorList id={fields.email.errorId} errors={fields.email.errors} />
 			</div>
 			<div>
 				<label htmlFor={fields.password.id}>Password</label>
-				<input
-					{...conform.input(fields.password, {
-						ariaAttributes: true,
-						type: 'password',
-					})}
-				/>
+				<input {...conform.input(fields.password, { type: 'password' })}>
 				<ErrorList
 					id={fields.password.errorId}
 					errors={fields.password.errors}

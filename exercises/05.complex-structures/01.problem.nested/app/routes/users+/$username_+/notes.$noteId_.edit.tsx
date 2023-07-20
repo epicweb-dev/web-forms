@@ -1,4 +1,4 @@
-import { conform, useForm } from '@conform-to/react'
+import { conform, useForm, report } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import {
 	unstable_createMemoryUploadHandler as createMemoryUploadHandler,
@@ -40,9 +40,7 @@ export async function loader({ params }: DataFunctionArgs) {
 	})
 }
 
-const titleMinLength = 1
 const titleMaxLength = 100
-const contentMinLength = 1
 const contentMaxLength = 10000
 
 const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
@@ -50,8 +48,8 @@ const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
 // 🐨 make a ImageFieldsetSchema that's an object which has id, file, and altText
 
 const NoteEditorSchema = z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 	// 🐨 move these three properties to the ImageFieldsetSchema
 	imageId: z.string().optional(),
 	file: z
@@ -74,11 +72,12 @@ export async function action({ request, params }: DataFunctionArgs) {
 
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
-		acceptMultipleErrors: () => true,
 	})
 
 	if (!submission.value) {
-		return json({ status: 'error', submission } as const, { status: 400 })
+		return json({ status: 'error', submission: report(submission) } as const, {
+			status: 400,
+		})
 	}
 	// 🐨 just grab the "image" instead of file, imageId, and altText
 	const { title, content, file, imageId, altText } = submission.value
@@ -99,12 +98,9 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	errors?: Array<string> | string | null
+	errors?: Array<string> | null
 }) {
-	if (!errors) return null
-	errors = Array.isArray(errors) ? errors : [errors]
-
-	return errors.length ? (
+	return errors?.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
 				<li key={i} className="text-[10px] text-foreground-danger">
@@ -147,10 +143,7 @@ export default function NoteEdit() {
 				<div className="flex flex-col gap-1">
 					<div>
 						<Label htmlFor={fields.title.id}>Title</Label>
-						<Input
-							autoFocus
-							{...conform.input(fields.title, { ariaAttributes: true })}
-						/>
+						<Input autoFocus {...conform.input(fields.title)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.title.errorId}
@@ -160,9 +153,7 @@ export default function NoteEdit() {
 					</div>
 					<div>
 						<Label htmlFor={fields.content.id}>Content</Label>
-						<Textarea
-							{...conform.textarea(fields.content, { ariaAttributes: true })}
-						/>
+						<Textarea {...conform.textarea(fields.content)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.content.errorId}
@@ -249,7 +240,6 @@ function ImageChooser({
 							{existingImage ? (
 								// 🐨 update this to use the conform.input helper on
 								// fields.image.id (make sure it stays hidden though)
-								// 💰 make sure to use the ariaAttributes option
 								<input name="imageId" type="hidden" value={image?.id} />
 							) : null}
 							<input
@@ -275,7 +265,6 @@ function ImageChooser({
 								type="file"
 								accept="image/*"
 								// 🐨 add the props from conform.input with the fields.file
-								// 💰 make sure to use the ariaAttributes option
 							/>
 						</label>
 					</div>
@@ -290,7 +279,6 @@ function ImageChooser({
 						defaultValue={altText}
 						onChange={e => setAltText(e.currentTarget.value)}
 						// 🐨 add the props from conform.textarea with the fields.altText
-						// 💰 make sure to use the ariaAttributes option
 					/>
 				</div>
 			</div>

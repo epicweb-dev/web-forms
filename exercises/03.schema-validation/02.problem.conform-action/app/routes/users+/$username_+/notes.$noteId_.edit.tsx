@@ -32,14 +32,12 @@ export async function loader({ params }: DataFunctionArgs) {
 	})
 }
 
-const titleMinLength = 1
 const titleMaxLength = 100
-const contentMinLength = 1
 const contentMaxLength = 10000
 
 const NoteEditorSchema = z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -80,13 +78,8 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	// The errors in conform can also be a single string, so you'll need to handle that case
-	// This will be changed soon: https://github.com/edmundhung/conform/issues/212
-	// 🐨 add "| string" to this type
 	errors?: Array<string> | null
 }) {
-	// 🐨 if the errors is null, return null
-	// 🐨 if the errors is a string, turn it into an array of that one string
 	return errors?.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
@@ -149,7 +142,6 @@ export default function NoteEdit() {
 							name="title"
 							defaultValue={data.note.title}
 							required
-							minLength={titleMinLength}
 							maxLength={titleMaxLength}
 							aria-invalid={titleHasErrors || undefined}
 							aria-describedby={titleErrorId}
@@ -166,7 +158,6 @@ export default function NoteEdit() {
 							name="content"
 							defaultValue={data.note.content}
 							required
-							minLength={contentMinLength}
 							maxLength={contentMaxLength}
 							aria-invalid={contentHasErrors || undefined}
 							aria-describedby={contentErrorId}

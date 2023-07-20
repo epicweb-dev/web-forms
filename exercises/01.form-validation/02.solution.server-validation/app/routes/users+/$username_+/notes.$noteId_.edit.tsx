@@ -34,9 +34,7 @@ type ActionErrors = {
 	}
 }
 
-const titleMinLength = 1
 const titleMaxLength = 100
-const contentMinLength = 1
 const contentMaxLength = 10000
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -56,14 +54,14 @@ export async function action({ request, params }: DataFunctionArgs) {
 		},
 	}
 
-	if (title.length < titleMinLength) {
-		errors.fieldErrors.title.push('Title must be at least 1 character')
+	if (title === '') {
+		errors.fieldErrors.title.push('Title is required')
 	}
 	if (title.length > titleMaxLength) {
 		errors.fieldErrors.title.push('Title must be at most 100 characters')
 	}
-	if (content.length < contentMinLength) {
-		errors.fieldErrors.content.push('Content must be at least 1 character')
+	if (content === '') {
+		errors.fieldErrors.content.push('Content is required')
 	}
 	if (content.length > contentMaxLength) {
 		errors.fieldErrors.content.push('Content must be at most 10000 characters')
@@ -117,7 +115,6 @@ export default function NoteEdit() {
 							name="title"
 							defaultValue={data.note.title}
 							required
-							minLength={titleMinLength}
 							maxLength={titleMaxLength}
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
@@ -131,7 +128,6 @@ export default function NoteEdit() {
 							name="content"
 							defaultValue={data.note.content}
 							required
-							minLength={contentMinLength}
 							maxLength={contentMaxLength}
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">

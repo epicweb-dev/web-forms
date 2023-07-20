@@ -2,6 +2,7 @@ import {
 	conform,
 	useFieldset,
 	useForm,
+	report,
 	type FieldConfig,
 } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
@@ -45,26 +46,26 @@ export async function loader({ params }: DataFunctionArgs) {
 	})
 }
 
-const titleMinLength = 1
 const titleMaxLength = 100
-const contentMinLength = 1
 const contentMaxLength = 10000
 
 const MAX_UPLOAD_SIZE = 1024 * 1024 * 3 // 3MB
 
 const ImageFieldsetSchema = z.object({
 	id: z.string().optional(),
-	file: z.instanceof(File).refine(file => {
-		return file.size <= MAX_UPLOAD_SIZE
-	}, 'File size must be less than 3MB'),
+	file: z
+		.instanceof(File)
+		.refine(file => {
+			return file.size <= MAX_UPLOAD_SIZE
+		}, 'File size must be less than 3MB')
+		.optional(),
 	altText: z.string().optional(),
 })
 
 const NoteEditorSchema = z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 	// 🐨 rename this to "images" and put ImageFieldsetSchema in a z.array()
-	// 🐨 also, make it .optional()
 	image: ImageFieldsetSchema,
 })
 
@@ -78,11 +79,12 @@ export async function action({ request, params }: DataFunctionArgs) {
 
 	const submission = parse(formData, {
 		schema: NoteEditorSchema,
-		acceptMultipleErrors: () => true,
 	})
 
 	if (!submission.value) {
-		return json({ status: 'error', submission } as const, { status: 400 })
+		return json({ status: 'error', submission: report(submission) } as const, {
+			status: 400,
+		})
 	}
 	// 🐨 update this to "images"
 	const { title, content, image } = submission.value
@@ -97,12 +99,9 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	errors?: Array<string> | string | null
+	errors?: Array<string> | null
 }) {
-	if (!errors) return null
-	errors = Array.isArray(errors) ? errors : [errors]
-
-	return errors.length ? (
+	return errors?.length ? (
 		<ul id={id} className="flex flex-col gap-1">
 			{errors.map((error, i) => (
 				<li key={i} className="text-[10px] text-foreground-danger">
@@ -148,10 +147,7 @@ export default function NoteEdit() {
 				<div className="flex flex-col gap-1">
 					<div>
 						<Label htmlFor={fields.title.id}>Title</Label>
-						<Input
-							autoFocus
-							{...conform.input(fields.title, { ariaAttributes: true })}
-						/>
+						<Input autoFocus {...conform.input(fields.title)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.title.errorId}
@@ -161,9 +157,7 @@ export default function NoteEdit() {
 					</div>
 					<div>
 						<Label htmlFor={fields.content.id}>Content</Label>
-						<Textarea
-							{...conform.textarea(fields.content, { ariaAttributes: true })}
-						/>
+						<Textarea {...conform.textarea(fields.content)} />
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							<ErrorList
 								id={fields.content.errorId}
@@ -210,11 +204,7 @@ function ImageChooser({
 	const [altText, setAltText] = useState(fields.altText.defaultValue ?? '')
 
 	return (
-		<fieldset
-			ref={ref}
-			aria-invalid={Boolean(config.errors?.length) || undefined}
-			aria-describedby={config.errors?.length ? config.errorId : undefined}
-		>
+		<fieldset ref={ref} {...conform.fieldset(config)}>
 			<div className="flex gap-3">
 				<div className="w-32">
 					<div className="relative h-32 w-32">
@@ -248,7 +238,6 @@ function ImageChooser({
 								<input
 									{...conform.input(fields.id, {
 										type: 'hidden',
-										ariaAttributes: true,
 									})}
 								/>
 							) : null}
@@ -271,7 +260,6 @@ function ImageChooser({
 								accept="image/*"
 								{...conform.input(fields.file, {
 									type: 'file',
-									ariaAttributes: true,
 								})}
 							/>
 						</label>
@@ -284,7 +272,7 @@ function ImageChooser({
 					<Label htmlFor={fields.altText.id}>Alt Text</Label>
 					<Textarea
 						onChange={e => setAltText(e.currentTarget.value)}
-						{...conform.textarea(fields.altText, { ariaAttributes: true })}
+						{...conform.textarea(fields.altText)}
 					/>
 					<div className="min-h-[32px] px-4 pb-3 pt-1">
 						<ErrorList

@@ -72,7 +72,6 @@ export default function NoteEdit() {
 							name="title"
 							defaultValue={data.note.title}
 							required
-							minLength={1}
 							maxLength={100}
 						/>
 						{/* 🐨 add the title error messages here */}
@@ -84,7 +83,6 @@ export default function NoteEdit() {
 							name="content"
 							defaultValue={data.note.content}
 							required
-							minLength={1}
 							maxLength={10000}
 						/>
 						{/* 🐨 add content the error messages here */}

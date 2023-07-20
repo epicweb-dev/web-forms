@@ -4,14 +4,14 @@ It doesn't take long before you are really tired of writing code that looks like
 this:
 
 ```tsx
-if (title.length < titleMinLength) {
-	errors.fieldErrors.title.push('Title must be at least 1 character')
+if (title === '') {
+	errors.fieldErrors.title.push('Title is required')
 }
 if (title.length > titleMaxLength) {
 	errors.fieldErrors.title.push('Title must be at most 100 characters')
 }
-if (content.length < contentMinLength) {
-	errors.fieldErrors.content.push('Content must be at least 1 character')
+if (content === '') {
+	errors.fieldErrors.content.push('Content is required')
 }
 if (content.length > contentMaxLength) {
 	errors.fieldErrors.content.push('Content must be at most 10000 characters')
@@ -24,10 +24,10 @@ If you haven't felt the draw to write a utility to improve this yet, you will.
 For example, we could do something like this:
 
 ```tsx
-function validate(value: string, min: number, max: number) {
+function validate(value: string, max: number) {
 	const errors = []
-	if (value.length < min) {
-		errors.push(`Must be at least ${min} characters`)
+	if (value === '') {
+		errors.push('Required')
 	}
 	if (value.length > max) {
 		errors.push(`Must be at most ${max} characters`)
@@ -35,12 +35,8 @@ function validate(value: string, min: number, max: number) {
 	return errors
 }
 
-errors.fieldErrors.title.push(
-	...validate(title, titleMinLength, titleMaxLength),
-)
-errors.fieldErrors.content.push(
-	...validate(content, contentMinLength, contentMaxLength),
-)
+errors.fieldErrors.title.push(...validate(title, titleMaxLength))
+errors.fieldErrors.content.push(...validate(content, contentMaxLength))
 ```
 
 Luckily, there are already libraries that do this for us so we don't have to
@@ -50,8 +46,8 @@ looks like this:
 
 ```tsx
 z.object({
-	title: z.string().min(titleMinLength).max(titleMaxLength),
-	content: z.string().min(contentMinLength).max(contentMaxLength),
+	title: z.string().max(titleMaxLength),
+	content: z.string().max(contentMaxLength),
 })
 ```
 
@@ -187,47 +183,54 @@ Conform has an adapter for Zod schemas with utilities that are perfect for what
 we're looking for. Here's an example:
 
 ```tsx
-import { conform, useForm } from '@conform-to/react'
+import { conform, useForm, report } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import { Form } from '@remix-run/react'
 import { json, redirect } from '@remix-run/node'
 import { z } from 'zod'
 
 const LoginSchema = z.object({
-	email: z.string().min(1, 'Email is required').email('Email is invalid'),
-	password: z.string().min(1, 'Password is required'),
+	email: z
+		.string({ required_error: 'Email is required' })
+		.email('Email is invalid'),
+	password: z.string({ required_error: 'Password is required' }),
 })
-
-// https://github.com/edmundhung/conform/issues/211
-const FORM_ERROR = ''
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: LoginSchema,
-		// This makes it so if a field has more than one error, we'll display all of them
-		// https://github.com/edmundhung/conform/issues/215
-		acceptMultipleErrors: () => true,
 	})
 
 	if (submission.intent !== 'submit') {
 		// the user hasn't submitted the form yet
 		// this will happen if Conform is validating the form before submission
 		// (like if we configure Conform to validate onBlur)
-		return json({ status: 'idle', submission } as const)
+		return json({ status: 'idle', submission: report(submission) } as const)
 	}
 
 	if (!submission.value) {
 		// there's no value because there is an error in the form
-		return json({ status: 'error', submission } as const, { status: 400 })
+		return json({ status: 'error', submission: report(submission) } as const, {
+			status: 400,
+		})
 	}
 
 	const { email, password } = submission.value
 
 	const isAuthenticated = await authenticate({ email, password })
 	if (!isAuthenticated) {
-		submission.error[FORM_ERROR] = ['Invalid email or password']
-		return json({ status: 'error', submission } as const, { status: 401 })
+		return json(
+			{
+				status: 'error',
+				submission: report(submission, {
+					formError: ['Invalid email or password'],
+				}),
+			} as const,
+			{
+				status: 401,
+			},
+		)
 	}
 
 	return redirect('/dashboard')
@@ -248,14 +251,13 @@ export default function LoginForm() {
 		<Form method="post" {...form.props}>
 			<div>
 				<label htmlFor={fields.email.id}>Email</label>
-				<input {...conform.input(fields.email, { ariaAttributes: true })} />
+				<input {...conform.input(fields.email)} />
 				<ErrorList id={fields.email.errorId} errors={fields.email.errors} />
 			</div>
 			<div>
 				<label htmlFor={fields.password.id}>Password</label>
 				<input
 					{...conform.input(fields.password, {
-						ariaAttributes: true,
 						type: 'password',
 					})}
 				/>
@@ -275,7 +277,7 @@ function ErrorList({
 	errors,
 }: {
 	id?: string
-	errors?: Array<string> | string | null
+	errors?: Array<string> | null
 }) {
 	if (!errors) return null
 	errors = Array.isArray(errors) ? errors : [errors]
