@@ -12,6 +12,7 @@ export async function loader({ params }: DataFunctionArgs) {
 	invariantResponse(image, 'Image not found', { status: 404 })
 
 	const { filepath, contentType } = image
+	const fileStat = await fs.promises.stat(filepath)
 	const body = new PassThrough()
 	const stream = fs.createReadStream(filepath)
 	stream.on('open', () => stream.pipe(body))
@@ -20,9 +21,10 @@ export async function loader({ params }: DataFunctionArgs) {
 	return new Response(body, {
 		status: 200,
 		headers: {
-			'Content-Type': contentType,
-			'Content-Disposition': `inline; filename="${params.imageId}"`,
-			'Cache-Control': 'public, max-age=31536000, immutable',
+			'content-type': contentType,
+			'content-length': fileStat.size.toString(),
+			'content-disposition': `inline; filename="${params.imageId}"`,
+			'cache-control': 'public, max-age=31536000, immutable',
 		},
 	})
 }
