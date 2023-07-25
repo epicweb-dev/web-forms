@@ -61,7 +61,7 @@ const ImageFieldsetSchema = z.object({
 			return file.size <= MAX_UPLOAD_SIZE
 		}, 'File size must be less than 3MB')
 		.optional(),
-	altText: z.string().min(10).optional(),
+	altText: z.string().optional(),
 })
 
 const NoteEditorSchema = z.object({
