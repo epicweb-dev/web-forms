@@ -52,12 +52,14 @@ export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	// 🐨 get the actionData from useActionData here
 	const isSubmitting = useIsSubmitting()
+	const formId = 'note-editor'
 
 	// 🐨 get the fieldErrors here from the actionData
 
 	return (
 		<div className="absolute inset-0">
 			<Form
+				id={formId}
 				// 🐨 to test out the server-side validation, you need to disable the
 				// client-side validation. You can do that by adding:
 				// noValidate
@@ -105,6 +107,7 @@ export default function NoteEdit() {
 					Reset
 				</Button>
 				<StatusButton
+					form={formId}
 					type="submit"
 					disabled={isSubmitting}
 					status={isSubmitting ? 'pending' : 'idle'}

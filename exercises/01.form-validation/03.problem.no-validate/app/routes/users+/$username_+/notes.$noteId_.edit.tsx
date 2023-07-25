@@ -97,6 +97,7 @@ export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const actionData = useActionData<typeof action>()
 	const isSubmitting = useIsSubmitting()
+	const formId = 'note-editor'
 
 	const fieldErrors =
 		actionData?.status === 'error' ? actionData.errors.fieldErrors : null
@@ -108,6 +109,7 @@ export default function NoteEdit() {
 	return (
 		<div className="absolute inset-0">
 			<Form
+				id={formId}
 				// 🐨 set the noValidate prop to the isHydrated variable
 				method="post"
 				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
@@ -148,6 +150,7 @@ export default function NoteEdit() {
 					Reset
 				</Button>
 				<StatusButton
+					form={formId}
 					type="submit"
 					disabled={isSubmitting}
 					status={isSubmitting ? 'pending' : 'idle'}

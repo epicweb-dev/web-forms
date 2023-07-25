@@ -43,10 +43,12 @@ export async function action({ request, params }: DataFunctionArgs) {
 export default function NoteEdit() {
 	const data = useLoaderData<typeof loader>()
 	const isSubmitting = useIsSubmitting()
+	const formId = 'note-editor'
 
 	return (
 		<div className="absolute inset-0">
 			<Form
+				id={formId}
 				method="post"
 				className="flex h-full flex-col gap-y-4 overflow-y-auto overflow-x-hidden px-10 pb-28 pt-12"
 			>
@@ -71,6 +73,7 @@ export default function NoteEdit() {
 					Reset
 				</Button>
 				<StatusButton
+					form={formId}
 					type="submit"
 					disabled={isSubmitting}
 					status={isSubmitting ? 'pending' : 'idle'}
