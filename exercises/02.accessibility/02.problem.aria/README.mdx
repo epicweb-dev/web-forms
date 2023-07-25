@@ -53,7 +53,7 @@ is no error, for example:
 ```tsx
 <input
 	aria-invalid={hasErrors || undefined}
-	aria-invalid={hasErrors ? 'id' : undefined}
+	aria-describedby={hasErrors ? 'id' : undefined}
 />
 ```
 
