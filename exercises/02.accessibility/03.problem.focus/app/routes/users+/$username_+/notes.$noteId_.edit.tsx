@@ -131,9 +131,10 @@ export default function NoteEdit() {
 	// - the formRef.current is truthy
 	// - the actionData is in an error status
 	// 🐨 if the formRef.current matches the query [aria-invalid="true"] then
-	// focus on the form otherwise, check formRef.current.elements and focus on
-	// the first element that matches the query [aria-invalid="true"]
+	// focus on the form otherwise, run formRef.current.querySelector to find the
+	// first [aria-invalid="true"] HTMLElement and focus that one instead.
 	// 📜 https://mdn.io/element.matches
+	// 🦺 You may need to add an instanceof HTMLElement check to be able to focus it.
 
 	return (
 		<div className="absolute inset-0">

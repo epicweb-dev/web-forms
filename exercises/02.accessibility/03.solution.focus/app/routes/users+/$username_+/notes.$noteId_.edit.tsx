@@ -132,14 +132,9 @@ export default function NoteEdit() {
 		if (formEl.matches('[aria-invalid="true"]')) {
 			formEl.focus()
 		} else {
-			for (const formElement of formEl.elements) {
-				if (
-					formElement.matches('[aria-invalid="true"]') &&
-					formElement instanceof HTMLElement
-				) {
-					formElement.focus()
-					break
-				}
+			const firstInvalid = formEl.querySelector('[aria-invalid="true"]')
+			if (firstInvalid instanceof HTMLElement) {
+				firstInvalid.focus()
 			}
 		}
 	}, [actionData])
