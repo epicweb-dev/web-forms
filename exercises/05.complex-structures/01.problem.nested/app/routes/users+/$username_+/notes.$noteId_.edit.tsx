@@ -59,7 +59,7 @@ const NoteEditorSchema = z.object({
 		}, 'File size must be less than 3MB')
 		.optional(),
 	altText: z.string().optional(),
-	// 🐨 add an image property that's assigned to the ImageFIeldsetSchema
+	// 🐨 add an image property that's assigned to the ImageFieldsetSchema
 })
 
 export async function action({ request, params }: DataFunctionArgs) {
