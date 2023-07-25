@@ -145,7 +145,7 @@ export default function NoteEdit() {
 							aria-describedby={titleErrorId}
 							// 💣 everything between here and the previous 💣 can be deleted
 							autoFocus
-							// 🐨 add {...fields.title.props} here
+							// 🐨 add {...conform.input(fields.title)} here
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							{/* 🐨 get the id from fields.title.errorId */}
@@ -166,7 +166,7 @@ export default function NoteEdit() {
 							aria-invalid={contentHasErrors || undefined}
 							aria-describedby={contentErrorId}
 							// 💣 everything between here and the previous 💣 can be deleted
-							// 🐨 add {...fields.content.props} here
+							// 🐨 add {...conform.input(fields.content)} here
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							{/* 🐨 get the id from fields.content.errorId */}
