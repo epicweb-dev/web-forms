@@ -1,4 +1,4 @@
-app = "epicweb-dev-web-auth"
+app = "epicweb-dev-web-forms"
 primary_region = "sjc"
 kill_signal = "SIGINT"
 kill_timeout = 5
