@@ -1,7 +1,7 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
-import { Link, useLoaderData, type V2_MetaFunction } from '@remix-run/react'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { db } from '~/utils/db.server.ts'
+import { Link, useLoaderData, type MetaFunction } from '@remix-run/react'
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+import { db } from '#app/utils/db.server.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const user = db.user.findFirst({
@@ -31,7 +31,7 @@ export default function ProfileRoute() {
 	)
 }
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data, params }) => {
+export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
 	const displayName = data?.user.name ?? params.username
 	return [
 		{ title: `${displayName} | Epic Notes` },

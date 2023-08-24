@@ -2,13 +2,16 @@
   "name": "deployed-web-auth",
   "private": true,
   "type": "module",
+  "imports": {
+    "#*": "./*"
+  },
   "scripts": {
     "start": "kcdshop start"
   },
   "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com/)",
   "license": "GPL-3.0-only",
   "dependencies": {
-    "@kentcdodds/workshop-app": "^2.20.1",
+    "@kentcdodds/workshop-app": "^2.20.3",
     "execa": "^7.2.0"
   },
   "engines": {

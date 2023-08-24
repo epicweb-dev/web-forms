@@ -32,12 +32,12 @@ export async function action({ request }: DataFunctionArgs) {
 		// this will happen if Conform is validating the form before submission
 		// (like if we configure Conform to validate onBlur)
 		// We'll not add this yet, we'll get to it later.
-		return json({ status: 'idle', submission: report(submission) } as const)
+		return json({ status: 'idle', submission } as const)
 	}
 
 	if (!submission.value) {
 		// there's no value because there is an error in the form
-		return json({ status: 'error', submission: report(submission) } as const, {
+		return json({ status: 'error', submission } as const, {
 			status: 400,
 		})
 	}
@@ -46,12 +46,12 @@ export async function action({ request }: DataFunctionArgs) {
 
 	const isAuthenticated = await authenticate({ email, password })
 	if (!isAuthenticated) {
+		// set the form error:
+		submission.error[''] = ['Invalid email or password']
 		return json(
 			{
 				status: 'error',
-				submission: report(submission, {
-					formError: ['Invalid email or password'],
-				}),
+				submission,
 			} as const,
 			{ status: 401 },
 		)

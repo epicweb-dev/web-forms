@@ -1,4 +1,4 @@
-import { conform, useForm, report } from '@conform-to/react'
+import { conform, useForm } from '@conform-to/react'
 import { getFieldsetConstraint, parse } from '@conform-to/zod'
 import {
 	unstable_createMemoryUploadHandler as createMemoryUploadHandler,
@@ -10,15 +10,15 @@ import {
 import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import { z } from 'zod'
-import { GeneralErrorBoundary } from '~/components/error-boundary.tsx'
-import { floatingToolbarClassName } from '~/components/floating-toolbar.tsx'
-import { Button } from '~/components/ui/button.tsx'
-import { Input } from '~/components/ui/input.tsx'
-import { Label } from '~/components/ui/label.tsx'
-import { StatusButton } from '~/components/ui/status-button.tsx'
-import { Textarea } from '~/components/ui/textarea.tsx'
-import { db, updateNote } from '~/utils/db.server.ts'
-import { cn, invariantResponse, useIsSubmitting } from '~/utils/misc.ts'
+import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
+import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
+import { Button } from '#app/components/ui/button.tsx'
+import { Input } from '#app/components/ui/input.tsx'
+import { Label } from '#app/components/ui/label.tsx'
+import { StatusButton } from '#app/components/ui/status-button.tsx'
+import { Textarea } from '#app/components/ui/textarea.tsx'
+import { db, updateNote } from '#app/utils/db.server.ts'
+import { cn, invariantResponse, useIsSubmitting } from '#app/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
@@ -63,7 +63,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 	})
 
 	if (!submission.value) {
-		return json({ status: 'error', submission: report(submission) } as const, {
+		return json({ status: 'error', submission } as const, {
 			status: 400,
 		})
 	}

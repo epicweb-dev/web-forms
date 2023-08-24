@@ -4,7 +4,7 @@ import {
 	useRouteError,
 } from '@remix-run/react'
 import { type ErrorResponse } from '@remix-run/router'
-import { getErrorMessage } from '~/utils/misc.ts'
+import { getErrorMessage } from '#app/utils/misc.ts'
 
 type StatusHandler = (info: {
 	error: ErrorResponse
@@ -32,7 +32,7 @@ export function GeneralErrorBoundary({
 	}
 
 	return (
-		<div className="container mx-auto flex h-full w-full items-center justify-center rounded-xl bg-destructive p-20 text-h2 text-destructive-foreground">
+		<div className="container mx-auto flex h-full w-full items-center justify-center bg-destructive p-20 text-h2 text-destructive-foreground">
 			{isRouteErrorResponse(error)
 				? (statusHandlers?.[error.status] ?? defaultStatusHandler)({
 						error,

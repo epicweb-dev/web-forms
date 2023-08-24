@@ -1,8 +1,8 @@
-import { Response, type DataFunctionArgs } from '@remix-run/node'
 import fs from 'node:fs'
 import { PassThrough } from 'node:stream'
-import { db } from '~/utils/db.server.ts'
-import { invariantResponse } from '~/utils/misc.ts'
+import { Response, type DataFunctionArgs } from '@remix-run/node'
+import { db } from '#app/utils/db.server.ts'
+import { invariantResponse } from '#app/utils/misc.ts'
 
 export async function loader({ params }: DataFunctionArgs) {
 	invariantResponse(params.imageId, 'Invalid image ID')

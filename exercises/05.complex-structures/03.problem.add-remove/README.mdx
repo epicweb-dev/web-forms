@@ -69,7 +69,7 @@ const submission = parse(formData, {
 if (submission.intent !== 'submit') {
 	// I guess they're doing something other than submitting, so we'll just send
 	// the submission back and not process it.
-	return json({ status: 'idle', submission: report(submission) } as const)
+	return json({ status: 'idle', submission } as const)
 }
 
 // they're submitting, let's go!
