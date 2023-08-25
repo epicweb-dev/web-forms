@@ -129,7 +129,7 @@ export default function NoteEdit() {
 		defaultValue: {
 			title: data.note.title,
 			content: data.note.content,
-			images: data.note.images,
+			images: data.note.images.length ? data.note.images : [{}],
 		},
 	})
 	const imageList = useFieldList(form.ref, fields.images)
