@@ -1,12 +1,7 @@
-import crypto from 'node:crypto'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { type RequestHandler, createRequestHandler } from '@remix-run/express'
-import {
-	broadcastDevReady,
-	installGlobals,
-	type ServerBuild,
-} from '@remix-run/node'
+import { createRequestHandler } from '@remix-run/express'
+import { broadcastDevReady, type ServerBuild } from '@remix-run/node'
 import address from 'address'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
@@ -19,8 +14,6 @@ import morgan from 'morgan'
 // @ts-ignore - this file may not exist if you haven't built yet, but it will
 // definitely exist by the time the dev or prod server actually runs.
 import * as remixBuild from '../build/index.js'
-
-installGlobals()
 
 const MODE = process.env.NODE_ENV
 
@@ -82,23 +75,12 @@ app.use(express.static('public', { maxAge: '1h' }))
 morgan.token('url', req => decodeURIComponent(req.url ?? ''))
 app.use(morgan('tiny'))
 
-app.use((_, res, next) => {
-	res.locals.cspNonce = crypto.randomBytes(16).toString('hex')
-	next()
-})
-
-function getRequestHandler(build: ServerBuild): RequestHandler {
-	function getLoadContext(_: unknown, res: any) {
-		return { cspNonce: res.locals.cspNonce }
-	}
-	return createRequestHandler({ build, mode: MODE, getLoadContext })
-}
-
 app.all(
 	'*',
 	process.env.NODE_ENV === 'development'
-		? (...args) => getRequestHandler(devBuild)(...args)
-		: getRequestHandler(build),
+		? (...args) =>
+				createRequestHandler({ build: devBuild, mode: MODE })(...args)
+		: createRequestHandler({ build, mode: MODE }),
 )
 
 const desiredPort = Number(process.env.PORT || 3000)

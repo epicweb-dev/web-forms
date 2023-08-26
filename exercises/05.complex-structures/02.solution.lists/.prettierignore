@@ -4,6 +4,8 @@ node_modules
 /public/build
 /server-build
 .env
+tsconfig.tsbuildinfo
+*.ignored.*
 
 /test-results/
 /playwright-report/
