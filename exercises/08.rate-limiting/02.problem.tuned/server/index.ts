@@ -79,8 +79,12 @@ app.use(morgan('tiny'))
 // When running tests or running in development, we want to effectively disable
 // rate limiting because playwright tests are very fast and we don't want to
 // have to wait for the rate limit to reset between tests.
-const maxMultiple =
-	MODE !== 'production' || process.env.PLAYWRIGHT_TEST_BASE_URL ? 10_000 : 1
+const maxMultiple = process.env.TESTING ? 10_000 : 1
+
+// 🐨 create and apply three rate limit middlewares
+// - strongestRateLimit with 10 per minute. Applies to non-GET requests to /signup
+// - strongRateLimit with 100 per minute. Applies to other non-GET requests
+// - generalRateLimit with 1000 per minute. Applies to everything else.
 
 app.use(
 	rateLimit({

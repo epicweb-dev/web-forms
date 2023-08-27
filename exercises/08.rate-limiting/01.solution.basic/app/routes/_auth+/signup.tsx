@@ -15,7 +15,7 @@ export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
 	await validateCSRF(formData, request.headers)
 	checkHoneypot(formData)
-	// TODO: implement signup
+	// we'll implement signup later
 	return redirect('/')
 }
 

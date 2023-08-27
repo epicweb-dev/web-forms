@@ -75,6 +75,14 @@ app.use(express.static('public', { maxAge: '1h' }))
 morgan.token('url', req => decodeURIComponent(req.url ?? ''))
 app.use(morgan('tiny'))
 
+// 🐨 add the rate limiter here. It should have:
+// - windowMs of 60 * 1000 (1 minute)
+// - max of 1000
+// - standardHeaders: true
+// - legacyHeaders: false
+// 💯 as extra credit, make it so when process.env.TESTING is defined, we
+// properly configure the rate limiter to allow for more requests per minute.
+
 app.all(
 	'*',
 	process.env.NODE_ENV === 'development'

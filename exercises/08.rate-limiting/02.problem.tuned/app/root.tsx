@@ -1,4 +1,3 @@
-import os from 'node:os'
 import { cssBundleHref } from '@remix-run/css-bundle'
 import { json, type LinksFunction } from '@remix-run/node'
 import {
@@ -12,6 +11,7 @@ import {
 	useLoaderData,
 	type MetaFunction,
 } from '@remix-run/react'
+import os from 'node:os'
 import { AuthenticityTokenProvider, HoneypotProvider } from 'remix-utils'
 import faviconAssetUrl from './assets/favicon.svg'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
@@ -32,15 +32,10 @@ export const links: LinksFunction = () => {
 }
 
 export async function loader() {
-	const [csrfToken, csrfCookieHeader] = await csrf.commitToken()
 	const honeyProps = honeypot.getInputProps()
+	const [csrfToken, csrfCookieHeader] = await csrf.commitToken()
 	return json(
-		{
-			username: os.userInfo().username,
-			ENV: getEnv(),
-			csrfToken,
-			honeyProps,
-		},
+		{ username: os.userInfo().username, ENV: getEnv(), honeyProps, csrfToken },
 		{
 			headers: {
 				'set-cookie': csrfCookieHeader,
@@ -106,18 +101,16 @@ function App() {
 	)
 }
 
-function AppWithProviders() {
+export default function AppWithProviders() {
 	const data = useLoaderData<typeof loader>()
 	return (
-		<HoneypotProvider {...data.honeyProps}>
-			<AuthenticityTokenProvider token={data.csrfToken}>
+		<AuthenticityTokenProvider token={data.csrfToken}>
+			<HoneypotProvider {...data.honeyProps}>
 				<App />
-			</AuthenticityTokenProvider>
-		</HoneypotProvider>
+			</HoneypotProvider>
+		</AuthenticityTokenProvider>
 	)
 }
-
-export default AppWithProviders
 
 export const meta: MetaFunction = () => {
 	return [

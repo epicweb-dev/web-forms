@@ -89,28 +89,34 @@
       "path": "exercises/05.complex-structures/03.solution.add-remove"
     },
     {
-      "path": "exercises/06.csrf/01.problem.setup"
+      "path": "exercises/06.honeypot/01.problem.basic"
     },
     {
-      "path": "exercises/06.csrf/01.solution.setup"
+      "path": "exercises/06.honeypot/01.solution.basic"
     },
     {
-      "path": "exercises/06.csrf/02.problem.verification"
+      "path": "exercises/06.honeypot/02.problem.util"
     },
     {
-      "path": "exercises/06.csrf/02.solution.verification"
+      "path": "exercises/06.honeypot/02.solution.util"
     },
     {
-      "path": "exercises/07.honeypot/01.problem.basic"
+      "path": "exercises/06.honeypot/03.problem.secret"
     },
     {
-      "path": "exercises/07.honeypot/01.solution.basic"
+      "path": "exercises/06.honeypot/03.solution.secret"
     },
     {
-      "path": "exercises/07.honeypot/02.problem.util"
+      "path": "exercises/07.csrf/01.problem.setup"
     },
     {
-      "path": "exercises/07.honeypot/02.solution.util"
+      "path": "exercises/07.csrf/01.solution.setup"
+    },
+    {
+      "path": "exercises/07.csrf/02.problem.verification"
+    },
+    {
+      "path": "exercises/07.csrf/02.solution.verification"
     },
     {
       "path": "exercises/08.rate-limiting/01.problem.basic"
