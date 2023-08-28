@@ -1,8 +1,3 @@
-import { Button } from '#app/components/ui/button.tsx'
-import { Input } from '#app/components/ui/input.tsx'
-import { Label } from '#app/components/ui/label.tsx'
-import { validateCSRF } from '#app/utils/csrf.server.ts'
-import { checkHoneypot } from '#app/utils/honeypot.server.ts'
 import {
 	redirect,
 	type DataFunctionArgs,
@@ -11,6 +6,11 @@ import {
 import { Form } from '@remix-run/react'
 import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 import { HoneypotInputs } from 'remix-utils/honeypot/react'
+import { Button } from '#app/components/ui/button.tsx'
+import { Input } from '#app/components/ui/input.tsx'
+import { Label } from '#app/components/ui/label.tsx'
+import { validateCSRF } from '#app/utils/csrf.server.ts'
+import { checkHoneypot } from '#app/utils/honeypot.server.ts'
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()

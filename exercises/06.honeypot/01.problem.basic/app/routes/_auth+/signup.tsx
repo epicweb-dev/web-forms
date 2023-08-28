@@ -9,6 +9,8 @@ import { Input } from '#app/components/ui/input.tsx'
 import { Label } from '#app/components/ui/label.tsx'
 
 export async function action({ request }: DataFunctionArgs) {
+	// 💣 you can remove this comment once you've used the form data
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const formData = await request.formData()
 	// 🐨 throw a 400 response if the name field is filled out
 	// we'll implement signup later

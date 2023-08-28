@@ -1,3 +1,4 @@
+import os from 'node:os'
 import { cssBundleHref } from '@remix-run/css-bundle'
 import { json, type LinksFunction } from '@remix-run/node'
 import {
@@ -11,7 +12,6 @@ import {
 	useLoaderData,
 	type MetaFunction,
 } from '@remix-run/react'
-import os from 'node:os'
 import { HoneypotProvider } from 'remix-utils/honeypot/react'
 import faviconAssetUrl from './assets/favicon.svg'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'

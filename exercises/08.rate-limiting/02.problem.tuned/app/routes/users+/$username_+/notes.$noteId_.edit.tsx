@@ -16,6 +16,7 @@ import {
 } from '@remix-run/node'
 import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useRef, useState } from 'react'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 import { z } from 'zod'
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
@@ -27,7 +28,6 @@ import { Textarea } from '#app/components/ui/textarea.tsx'
 import { validateCSRF } from '#app/utils/csrf.server.ts'
 import { db, updateNote } from '#app/utils/db.server.ts'
 import { cn, invariantResponse, useIsSubmitting } from '#app/utils/misc.ts'
-import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
