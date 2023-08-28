@@ -12,7 +12,7 @@ import {
 	type MetaFunction,
 } from '@remix-run/react'
 import os from 'node:os'
-import { HoneypotProvider } from 'remix-utils'
+import { HoneypotProvider } from 'remix-utils/honeypot/react'
 import faviconAssetUrl from './assets/favicon.svg'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { KCDShop } from './kcdshop.tsx'

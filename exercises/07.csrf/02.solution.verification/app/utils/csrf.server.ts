@@ -1,5 +1,5 @@
 import { createCookie } from '@remix-run/node'
-import { CSRF } from 'remix-utils'
+import { CSRF } from 'remix-utils/csrf/server'
 
 const cookie = createCookie('csrf', {
 	path: '/',

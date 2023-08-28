@@ -1,4 +1,4 @@
-import { Honeypot, SpamError } from 'remix-utils'
+import { Honeypot, SpamError } from 'remix-utils/honeypot/server'
 
 export const honeypot = new Honeypot({
 	validFromFieldName: process.env.TESTING ? undefined : null,

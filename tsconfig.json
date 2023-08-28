@@ -101,10 +101,10 @@
       "path": "exercises/06.honeypot/02.solution.util"
     },
     {
-      "path": "exercises/06.honeypot/03.problem.secret"
+      "path": "exercises/06.honeypot/03.problem.seed"
     },
     {
-      "path": "exercises/06.honeypot/03.solution.secret"
+      "path": "exercises/06.honeypot/03.solution.seed"
     },
     {
       "path": "exercises/07.csrf/01.problem.setup"

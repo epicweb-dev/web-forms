@@ -12,7 +12,6 @@ import {
 	type MetaFunction,
 } from '@remix-run/react'
 import os from 'node:os'
-import { AuthenticityTokenProvider, HoneypotProvider } from 'remix-utils'
 import faviconAssetUrl from './assets/favicon.svg'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { KCDShop } from './kcdshop.tsx'
@@ -21,6 +20,8 @@ import tailwindStylesheetUrl from './styles/tailwind.css'
 import { csrf } from './utils/csrf.server.ts'
 import { getEnv } from './utils/env.server.ts'
 import { honeypot } from './utils/honeypot.server.ts'
+import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
+import { HoneypotProvider } from 'remix-utils/honeypot/react'
 
 export const links: LinksFunction = () => {
 	return [

@@ -4,7 +4,7 @@ import {
 	type MetaFunction,
 } from '@remix-run/node'
 import { Form } from '@remix-run/react'
-import { HoneypotInputs } from 'remix-utils'
+import { HoneypotInputs } from 'remix-utils/honeypot/react'
 import { Button } from '#app/components/ui/button.tsx'
 import { Input } from '#app/components/ui/input.tsx'
 import { Label } from '#app/components/ui/label.tsx'

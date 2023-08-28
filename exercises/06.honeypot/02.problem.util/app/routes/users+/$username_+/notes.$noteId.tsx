@@ -65,7 +65,6 @@ export default function NoteRoute() {
 			</div>
 			<div className={floatingToolbarClassName}>
 				<Form method="post">
-					<AuthenticityTokenInput />
 					<Button
 						type="submit"
 						variant="destructive"

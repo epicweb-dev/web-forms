@@ -1,14 +1,15 @@
+import { Button } from '#app/components/ui/button.tsx'
+import { Input } from '#app/components/ui/input.tsx'
+import { Label } from '#app/components/ui/label.tsx'
+import { honeypot } from '#app/utils/honeypot.server.ts'
 import {
 	redirect,
 	type DataFunctionArgs,
 	type MetaFunction,
 } from '@remix-run/node'
 import { Form } from '@remix-run/react'
-import { HoneypotInputs, SpamError } from 'remix-utils'
-import { Button } from '#app/components/ui/button.tsx'
-import { Input } from '#app/components/ui/input.tsx'
-import { Label } from '#app/components/ui/label.tsx'
-import { honeypot } from '#app/utils/honeypot.server.ts'
+import { HoneypotInputs } from 'remix-utils/honeypot/react'
+import { SpamError } from 'remix-utils/honeypot/server'
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()

@@ -1,5 +1,5 @@
 {
-  "name": "exercises__sep__06.honeypot__sep__03.problem.secret",
+  "name": "exercises__sep__06.honeypot__sep__03.problem.seed",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -44,7 +44,7 @@
     "morgan": "^1.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "remix-utils": "npm:@kentcdodds/tmp-remix-utils@7.0.0-pre.3",
+    "remix-utils": "npm:@kentcdodds/tmp-remix-utils@7.0.0-pre.7",
     "tailwind-merge": "^1.13.2",
     "tailwindcss": "^3.3.2",
     "tailwindcss-animate": "^1.0.6",

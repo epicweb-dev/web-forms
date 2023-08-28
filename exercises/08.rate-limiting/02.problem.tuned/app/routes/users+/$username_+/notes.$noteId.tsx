@@ -1,6 +1,5 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, Link, useLoaderData, type MetaFunction } from '@remix-run/react'
-import { AuthenticityTokenInput } from 'remix-utils'
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
 import { floatingToolbarClassName } from '#app/components/floating-toolbar.tsx'
 import { Button } from '#app/components/ui/button.tsx'
@@ -8,6 +7,7 @@ import { validateCSRF } from '#app/utils/csrf.server.ts'
 import { db } from '#app/utils/db.server.ts'
 import { invariantResponse } from '#app/utils/misc.ts'
 import { type loader as notesLoader } from './notes.tsx'
+import { AuthenticityTokenInput } from 'remix-utils/csrf/react'
 
 export async function loader({ params }: DataFunctionArgs) {
 	const note = db.note.findFirst({
