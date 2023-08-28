@@ -1,1 +1,86 @@
 # Rate Limiting
+
+Imagine this: you've just released an amazing new feature on your web
+application, and you're excited for users to try it out. But then, suddenly,
+your server crashes due to a flood of requests. This could be a result of
+malicious intent, or just too many eager users. Either way, you're in trouble.
+This is where rate limiting comes in.
+
+Rate limiting helps to control the flow of incoming requests, ensuring that our
+server isn't overwhelmed. It does this by limiting the number of requests a user
+can make in a specific window of time. In the context of a web application,
+especially one that uses forms, rate limiting can be crucial.
+
+Of course we want all genuine users to be able to use our application which is
+why you should be cognizant of your scaling needs, but no real user in the world
+needs to submit your signup form more than 10 times in a minute.
+
+Now, why might we have different rate limits for `GET` vs `POST` requests?
+
+`GET` requests are typically **read** operations. These requests might be
+someone viewing a user's profile or reading a blog post. While it's important to
+rate limit these, they often are less resource-intensive than `POST` requests.
+And genuine users typically make many more of these types of requests than
+`POST` requests.
+
+`POST` requests are **write** operations. They might involve signing up for an
+account, posting a comment, or submitting some form data. These requests often
+require more from our server - data validation, database writes, sending emails,
+etc. Additionally, a user trying to guess a password might make many `POST`
+requests in a short period of time.
+
+Let's look at a scenario: the `/signup` endpoint. Signing up typically involves
+various operations like hashing passwords, database writes, and possibly sending
+a welcome email. It's unlikely a user will need to do this many times a minute.
+So, we'd use an even stricter rate limit on `POST` requests to `/signup`.
+
+We're using express for our server and there's a great tool called
+`express-rate-limit` that makes it easy to add support for rate limiting to our
+application:
+
+```typescript
+import rateLimit from 'express-rate-limit'
+
+// When we're testing, we don't want rate limiting to get in our way. So, we'll
+// increase our rate limit thresholds.
+const maxMultiple = process.env.TESTING ? 10_000 : 1
+
+const rateLimitDefault = {
+	windowMs: 60 * 1000, // 1 minute
+	max: 1000 * maxMultiple, // Adjust the max based on our environment
+	standardHeaders: true, // Send standard headers with limit information
+	legacyHeaders: false, // Don't bother sending legacy headers
+}
+
+// The most strict rate limit, great for routes like /signup
+const strongestRateLimit = rateLimit({
+	...rateLimitDefault,
+	max: 10 * maxMultiple,
+})
+
+// A stricter rate limit for general POST requests
+const strongRateLimit = rateLimit({
+	...rateLimitDefault,
+	max: 100 * maxMultiple,
+})
+
+// A general rate limit for our application
+const generalRateLimit = rateLimit(rateLimitDefault)
+
+app.use((req, res, next) => {
+	const strongPaths = ['/signup']
+	if (req.method !== 'GET' && req.method !== 'HEAD') {
+		if (strongPaths.some(p => req.path.includes(p))) {
+			return strongestRateLimit(req, res, next)
+		}
+		return strongRateLimit(req, res, next)
+	}
+
+	return generalRateLimit(req, res, next)
+})
+```
+
+Lastly, as you can see, we're taking into account our environment when
+configuring our rate limits. In our tests (which may execute very fast), we'd
+effectively disable rate limiting by boosting our limit thresholds. This ensures
+our tests don't fail simply because they're making requests too quickly.

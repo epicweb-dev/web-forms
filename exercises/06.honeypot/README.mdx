@@ -1,1 +1,119 @@
 # Honeypot
+
+Modern web applications are often bombarded with automated spam bots that try to
+submit forms with irrelevant or harmful content. There are a number of reasons
+they do this:
+
+- To post their links to your site, hoping to increase their search engine
+  ranking
+- To test your site for vulnerabilities
+- To help distribute malware
+
+This not only degrades the user experience but can also strain server resources
+and contaminate databases with unwanted data.
+
+On my own site I found that spam bots were submitting my login and contact forms
+which resulted in sending emails to myself and random people which was really
+annoying and affected my deliverability. The nice thing is that it's pretty cost
+prohibitive for people to make sophisticated spam bots, so a few simple tricks
+can help you avoid most of the spam. To defend against these bots, you can use
+a common strategy known as a honeypot field.
+
+A honeypot field is a form input that's designed to be invisible to genuine
+human users but enticing to bots. The concept behind it is simple: since bots
+will often fill out every available field in a form, we can trick them by adding
+a field that human users can't see (and therefore won't fill out). If any
+submissions contain data in that hidden field, it's a strong indicator that the
+submission is from a bot, allowing us to discard or flag the submission
+accordingly.
+
+Another useful thing you can do along with the honeypot field is to add a field
+that will allow you to determine when the form was generated. So if the form is
+submitted too quickly, you can be pretty confident that it's a bot. This is more
+tricky than it sounds because bots could easily change the value of that field,
+so you do need to encrypt the value. But if you manage that, it's a great way to
+catch bots.
+
+To implement a honeypot field, you'd typically add an input field to your form
+and then hide it using CSS. It's crucial that this field is hidden in a way
+that's not detectable by bots. It's also a good idea to give the honeypot field
+a name that sounds enticing to bots, like "url" or "email", which can make it
+even more likely they'll fill it in. The trick is making sure the field doesn't
+conflict with any other fields in your form. So you can sometimes append
+`__confirm` or something similar to the field to keep it unique and the bot will
+still fill it in.
+
+For example:
+
+```html
+<form>
+	<label>
+		Name:
+		<input type="text" name="name" />
+	</label>
+	<label>
+		Email:
+		<input type="email" name="email" />
+	</label>
+	<label>
+		Website:
+		<input type="text" name="url" />
+	</label>
+	<label>
+		Message:
+		<textarea name="message"></textarea>
+	</label>
+	<div style="display: none;">
+		<label>
+			Do not fill out this field
+			<input type="text" name="name__confirm" />
+		</label>
+	</div>
+	<button type="submit">Send</button>
+</form>
+```
+
+When the form is submitted, you can then check the honeypot field on the
+server-side. If it has a value, it's a strong sign that the submission is
+automated and can be safely ignored or flagged.
+
+Honeypot fields offer a non-intrusive and user-friendly approach to combating
+spam. Unlike CAPTCHAs, which can sometimes frustrate genuine users, honeypots
+operate silently in the background. However, it's worth noting that no solution
+is foolproof. As bots become more sophisticated, they might learn to avoid
+honeypots. Additionally, if you're targeted by a specific group then they'll be
+able to code their bot specific to your protections.
+
+So the idea of a honeypot field is just to keep yourself out of the "low
+hanging fruit" category.
+
+Remember, it's always a cat and mouse game between spammers and developers. As
+one side innovates, so does the other. Stay updated, and be ready to iterate on
+your solutions as the digital landscape evolves.
+
+## Remix Utils
+
+This is why using a library that can be continuously updated is a great
+approach. [`remix-utils`](https://npm.im/remix-utils) has a great solution to
+this problem which we'll be using in this exercise.
+
+```tsx
+// create the honeypot instance:
+const honeypot = new Honeypot()
+
+// get the props for our fields:
+const honeyProps = honeypot.getInputProps()
+
+// pass those to the React provider
+<HoneypotProvider {...honeyProps}>
+	<App />
+</HoneypotProvider>
+
+// render the fields within our form
+<HoneypotInputs />
+
+// check the honeypot field on the server
+honeypot.check(formData)
+```
+
+- [📜 `remix-utils` Honeypot](https://github.com/sergiodxa/remix-utils#honeypot)

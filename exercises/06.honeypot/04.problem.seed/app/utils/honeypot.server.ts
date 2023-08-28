@@ -1,7 +1,7 @@
 import { Honeypot, SpamError } from 'remix-utils/honeypot/server'
 
 export const honeypot = new Honeypot({
-	validFromFieldName: process.env.TESTING ? undefined : null,
+	validFromFieldName: process.env.TESTING ? null : undefined,
 	// 🐨 add an encryptionSeed option to the honeypot constructor
 	// and set it to the HONEYPOT_SECRET environment variable
 })

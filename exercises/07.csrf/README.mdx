@@ -63,6 +63,14 @@ We'll get to the Cookies solution in a future workshop. But even with cookies in
 place, there are some requests that don't require cookies so it's a good general
 practice to apply CSRF protection to all requests that modify data.
 
+<callout-info>
+	Thanks to our honeypot implementation which requires a "valid from" field, we
+	actually get a similar protection. However, honeypot fields are not intended
+	to protect against CSRF and therefore the implementation could change in a way
+	that no longer provides this protection. So it's best to implement both
+	anti-CSRF tokens and honeypot fields.
+</callout-info>
+
 ## Remix Utils
 
 It actually takes a fair bit of work to generate the CSRF token and send it to
