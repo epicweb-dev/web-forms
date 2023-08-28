@@ -29,8 +29,6 @@ export const links: LinksFunction = () => {
 }
 
 export async function loader() {
-	// 🐨 get the honeypot props from the honeypot object and add them to this
-	// object.
 	return json({ username: os.userInfo().username, ENV: getEnv() })
 }
 
@@ -54,7 +52,7 @@ function Document({ children }: { children: React.ReactNode }) {
 	)
 }
 
-function App() {
+export default function App() {
 	const data = useLoaderData<typeof loader>()
 	return (
 		<Document>
@@ -64,8 +62,8 @@ function App() {
 						<div className="font-light">epic</div>
 						<div className="font-bold">notes</div>
 					</Link>
-					<Link className="underline" to="/users/kody/notes/d27a197e/edit">
-						Edit Kody's first note
+					<Link className="underline" to="/signup">
+						Signup
 					</Link>
 				</nav>
 			</header>
@@ -89,12 +87,6 @@ function App() {
 			/>
 		</Document>
 	)
-}
-
-export default function AppWithProviders() {
-	// 💰 you'll need this const data = useLoaderData<typeof loader>()
-	// 🐨 render the HoneypotProvider here and pass the honeypot props
-	return <App />
 }
 
 export const meta: MetaFunction = () => {

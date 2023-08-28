@@ -12,14 +12,12 @@ import {
 	useLoaderData,
 	type MetaFunction,
 } from '@remix-run/react'
-import { HoneypotProvider } from 'remix-utils/honeypot/react'
 import faviconAssetUrl from './assets/favicon.svg'
 import { GeneralErrorBoundary } from './components/error-boundary.tsx'
 import { KCDShop } from './kcdshop.tsx'
 import fontStylestylesheetUrl from './styles/font.css'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import { getEnv } from './utils/env.server.ts'
-import { honeypot } from './utils/honeypot.server.ts'
 
 export const links: LinksFunction = () => {
 	return [
@@ -31,12 +29,7 @@ export const links: LinksFunction = () => {
 }
 
 export async function loader() {
-	const honeyProps = honeypot.getInputProps()
-	return json({
-		username: os.userInfo().username,
-		ENV: getEnv(),
-		honeyProps,
-	})
+	return json({ username: os.userInfo().username, ENV: getEnv() })
 }
 
 function Document({ children }: { children: React.ReactNode }) {
@@ -59,7 +52,7 @@ function Document({ children }: { children: React.ReactNode }) {
 	)
 }
 
-function App() {
+export default function App() {
 	const data = useLoaderData<typeof loader>()
 	return (
 		<Document>
@@ -69,8 +62,8 @@ function App() {
 						<div className="font-light">epic</div>
 						<div className="font-bold">notes</div>
 					</Link>
-					<Link className="underline" to="/users/kody/notes/d27a197e/edit">
-						Edit Kody's first note
+					<Link className="underline" to="/signup">
+						Signup
 					</Link>
 				</nav>
 			</header>
@@ -93,15 +86,6 @@ function App() {
 				}}
 			/>
 		</Document>
-	)
-}
-
-export default function AppWithProviders() {
-	const data = useLoaderData<typeof loader>()
-	return (
-		<HoneypotProvider {...data.honeyProps}>
-			<App />
-		</HoneypotProvider>
 	)
 }
 

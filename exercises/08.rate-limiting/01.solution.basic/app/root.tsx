@@ -75,8 +75,8 @@ function App() {
 						<div className="font-light">epic</div>
 						<div className="font-bold">notes</div>
 					</Link>
-					<Link className="underline" to="/users/kody/notes/d27a197e/edit">
-						Edit Kody's first note
+					<Link className="underline" to="/signup">
+						Signup
 					</Link>
 				</nav>
 			</header>
