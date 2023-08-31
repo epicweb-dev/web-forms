@@ -1,6 +1,5 @@
 import { createCookie } from '@remix-run/node'
 import { CSRF, CSRFError } from 'remix-utils/csrf/server'
-import { singleton } from './singleton.server.ts'
 
 const cookie = createCookie('csrf', {
 	path: '/',
