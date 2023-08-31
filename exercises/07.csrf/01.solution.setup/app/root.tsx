@@ -37,9 +37,7 @@ export async function loader() {
 	return json(
 		{ username: os.userInfo().username, ENV: getEnv(), honeyProps, csrfToken },
 		{
-			headers: {
-				'set-cookie': csrfCookieHeader,
-			},
+			headers: csrfCookieHeader ? { 'set-cookie': csrfCookieHeader } : {},
 		},
 	)
 }
