@@ -1,6 +1,9 @@
 import fs from 'node:fs'
 import { PassThrough } from 'node:stream'
-import { Response, type DataFunctionArgs } from '@remix-run/node'
+import {
+	createReadableStreamFromReadable,
+	type DataFunctionArgs
+} from '@remix-run/node'
 import { db } from '#app/utils/db.server.ts'
 import { invariantResponse } from '#app/utils/misc.ts'
 
@@ -18,7 +21,7 @@ export async function loader({ params }: DataFunctionArgs) {
 	stream.on('open', () => stream.pipe(body))
 	stream.on('error', err => body.end(err))
 	stream.on('end', () => body.end())
-	return new Response(body, {
+	return new Response(createReadableStreamFromReadable(body), {
 		status: 200,
 		headers: {
 			'content-type': contentType,

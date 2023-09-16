@@ -9,4 +9,4 @@ const cookie = createCookie('csrf', {
 	secrets: process.env.SESSION_SECRET.split(','),
 })
 
-export const csrf = new CSRF({ cookie, formDataKey: 'csrf' })
+export const csrf = new CSRF({ cookie })
