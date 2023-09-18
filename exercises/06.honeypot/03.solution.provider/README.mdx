@@ -1,1 +1,14 @@
 # Honeypot Provider
+
+👨‍💼 Great! Now we're probably going to catch even more bots! But we've got
+another problem we'll want to deal with next.
+
+🧝‍♂️ Before you get to that though, I'm going to make a small change. We're going
+to apply this honeypot stuff to all our public forms, so to reduce repetition,
+I'm going to move some of the boilerplate from the `action`
+in <InlineFile file="app/routes/_auth+/signup.tsx" />
+to a utility called `checkHoneypot`
+in <InlineFile file="app/utils/honeypot.server.ts" />.
+
+Feel free to <DiffLink>check the diff</DiffLink> or even do it yourself if you
+like.

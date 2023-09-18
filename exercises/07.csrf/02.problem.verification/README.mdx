@@ -1,1 +1,29 @@
 # CSRF Verification
+
+👨‍💼 First we're going to need to update our root component to include the CSRF
+token in context using the `remix-utils` `AuthenticityTokenProvider` component.
+
+```tsx
+import { AuthenticityTokenProvider } from 'remix-utils/csrf/react'
+
+// ...
+
+return (
+	<AuthenticityTokenProvider token={data.csrfToken}>
+		<App />
+	</AuthenticityTokenProvider>
+)
+```
+
+From there, all our forms just need a `<AuthenticityTokenInput />` component
+from `remix-utils/csrf/react` in the UI, and then we can validate the csrf in
+our `actions` and we'll be in business:
+
+```tsx
+import { CSRFError } from 'remix-utils/csrf/server' // <-- for the extra credit...
+import { csrf } from '#app/utils/csrf.server.ts'
+
+// ...
+
+await csrf.validate(formData, request.headers)
+```

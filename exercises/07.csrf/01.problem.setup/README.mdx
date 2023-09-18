@@ -1,1 +1,46 @@
 # CSRF Setup
+
+👨‍💼 We've got to get some things set up with the `remix-utils` CSRF utilities
+before we can actually start protecting our forms. We'll dive deeper into
+cookies in the [Web Auth](https://auth.epicweb.dev) workshop later, but you do
+need to set a signed cookie in the user's browser so you can use
+[Remix's `createCookie`](https://remix.run/docs/en/main/utils/cookies#createcookie)
+to help with that.
+
+```tsx
+import { createCookie } from '@remix-run/node'
+
+const cookie = createCookie('csrf', {
+	path: '/',
+	httpOnly: true,
+	secure: process.env.NODE_ENV === 'production',
+	sameSite: 'lax',
+	secrets: process.env.SESSION_SECRET.split(','),
+})
+```
+
+🐨 Go ahead and stick that in <InlineFile file="app/utils/csrf.server.ts" />.
+
+You'll notice we're using another environment variable. 🐨 You'll need to set
+that up like we did with the `HONEYPOT_SECRET` earlier.
+
+Feel free to [read the Remix docs](https://remix.run/docs/en/main/utils/cookies)
+all about cookies if you want to learn more about these options, but we'll get
+to this stuff in more depth in the Web Auth workshop.
+
+🐨 Once you have the cookie object created, you can use that to create a CSRF
+utility;
+
+```tsx
+import { CSRF } from 'remix-utils/csrf/server'
+
+// ...
+
+export const csrf = new CSRF({ cookie })
+```
+
+Now, we need to get the user's unique token in our UI for our forms and in the
+user's cookie so we can validate it on the server. We'll do that
+in <InlineFile file="app/root.tsx" />. 🐨 See you there!
+
+- [📜 Remix `createCookie`](https://remix.run/docs/en/main/utils/cookies#createcookie)

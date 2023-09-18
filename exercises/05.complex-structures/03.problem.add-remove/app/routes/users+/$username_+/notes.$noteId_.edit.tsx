@@ -181,7 +181,7 @@ export default function NoteEdit() {
 							))}
 						</ul>
 					</div>
-					{/* 🐨 add a button here with list.append and fields.images.name to add another image */}
+					{/* 🐨 add a button here with list.insert and fields.images.name to add another image */}
 					{/* 💰 you'll want to set the defaultValue to "{}" (otherwise it'll default to null which is invalid according to our schema) */}
 					{/* 🐨 you can use "➕ Image" as the button text */}
 					{/* 💯 if you have extra time, consider the screen reader experience. How could you make it better? */}

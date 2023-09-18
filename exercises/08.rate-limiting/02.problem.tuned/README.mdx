@@ -1,1 +1,13 @@
 # Tuned Rate Limiting
+
+👨‍💼 As a general rule, our rate limiter is ok, but for higher impact pages and
+forms, we probably want to tighten things up a bit. For example, it wouldn't
+make sense for a user to submit our `/signup` for a thousand times in a minute.
+Maybe more like 10 times in a minute max (maybe they're just _really_ bad at
+entering their proper email address).
+
+But then for some other forms it may be ok to submit 100 times in a minute
+(maybe they've got a _lot_ of notes they want to delete in a row). So we're
+going to have three tiers. General, strong, and strongest.
+
+So let's give that a whirl.

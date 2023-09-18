@@ -1,1 +1,24 @@
 # Honeypot Provider
+
+👨‍💼 If a user is able to submit the form within a second of the form being
+generated, they're probably not a human (or maybe they're just
+[Barry Allen](https://en.wikipedia.org/wiki/List_of_The_Flash_characters#Barry_Allen_/_Flash) ⚡).
+So as a part of our honeypot, we can have another hidden field that keeps track
+of when the form was generated. Then when the form is submitted, we just make
+sure it was submitted at least a second after it was generated.
+
+There are a few problems with this we'll need to consider. For example, if we're
+running automated tests, then our user actually _is_ a bot and that's okay 😅
+So when we're running tests, we don't want to include the valid from field.
+
+We'll know whether we're in a testing environment if `process.env.TESTING` is
+set. (That's set in <InlineFile file="index.js" />). If that's set, then just
+set the `validFromFieldName` to `null` and that will prevent remix-utils from
+including and checking for that field. Otherwise, you can set it to a string, or
+just use `undefined` to have the default value be used.
+
+Another challenge will be is synchronizing our UI with our server config for the
+honeypot fields. So we need to update <InlineFile file="app/root.tsx" /> to
+handle this.
+
+There are other issues, but let's just start with this.

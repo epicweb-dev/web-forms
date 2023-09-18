@@ -1,1 +1,31 @@
 # Encryption Seed
+
+👨‍💼 So, you may not have noticed this, but `remix-utils` doesn't actually put the
+real date the form was generated in the `validFrom` input of the form. It's just
+some random string of characters. Well, it's not really random, it's actually
+encrypted. The reason for this is because we don't want bots to be able to just
+change the date on the form and then submit it quickly. So `remix-utils` will
+encrypt the actual valid date and that's what the form is set to.
+
+To be able to decrypt the value, we need an encryption key. `remix-utils` will
+generate one for us if we don't set one ourselves. Unfortunately, there's a
+problem with doing things this way. The key is generated at startup time, so if
+you restart your server, or your running multiple instances of your app, a form
+could be generated with one key and validated with another.
+
+So instead, we can set it to something consistent across all instances of our
+app. We can do this by setting the `encryptionSeed` option in our config. The
+tricky bit is we need this to be secret, so we're not going to just commit this
+to the repository. We need this to be kept secret. So we'll use environment
+variables.
+
+So we're going to place it in our `.gitignore`d `.env` file which we're loading
+at startup time during development, and then you'll want to make sure to set
+this environment variable in your production environment as well
+([for example](https://fly.io/docs/reference/secrets/)).
+
+🐨 So first, you'll set the variable in <InlineFile file=".env" />, then
+go to <InlineFile file="app/utils/env.server.ts" /> to validate at startup time
+that the variable is set (and get type safety on it as well).
+
+🐨 Once you've got that, you can set the `encryptionSeed` in the honeypot config.

@@ -1,1 +1,33 @@
 # Basic Rate Limiting
+
+👨‍💼 Let's get started with some basic rate limiting using
+[`express-rate-limit`](https://npm.im/express-rate-limit). Here's a quick primer
+on its API:
+
+```tsx
+import { rateLimit } from 'express-rate-limit'
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Use standard draft-6 headers of `RateLimit-Policy` `RateLimit-Limit`, and `RateLimit-Remaining`
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	// store: ... , // Use an external store for more precise rate limiting
+})
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
+```
+
+For our app, we're ok not using an external store to manage the rate limiting,
+but that's something you may consider looking into depending on your scale.
+
+So let's open up <InlineFile file="server/index.ts" /> and get some basic
+middleware for this set up.
+
+Oh, and you're going to want to think about our testing environment... We want
+to keep the middleware in play, but we just want to increase the limits to
+account for the fact that a robot is actually submitting things faster than
+humans will be expected to 😅
+
+- [📜 `express-rate-limit`](https://www.npmjs.com/package/express-rate-limit)

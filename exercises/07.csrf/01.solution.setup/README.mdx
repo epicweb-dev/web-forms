@@ -1,1 +1,26 @@
 # CSRF Setup
+
+👨‍💼 Great! You should now be able to get that cookie value set in the browser's
+"cookie jar." You can verify this by opening the browser's developer tools and
+looking at the cookies for the page under the "Application" tab. The cookie
+will be called "csrf" and have a value that looks like a bunch of nonsense like:
+
+```
+IjdDa3p6WkV1d3NNel&nev3r&60nna&gIv3&yoU&uP&UW0zYmxDMDNyRjQi.NM71601wmCvZ%2FZaGIG6wV%2FuX%2FvGafzDEAmamK1hNu88
+```
+
+And while you can't visually verify it, that (unsigned) token value is in the
+browser as well. You can check by executing this in the console:
+
+```js
+__remixContext.state.loaderData.root.csrfToken
+```
+
+Which should get you something like this:
+
+```
+7Ck&Nev3r&60nna&1et&yoU&d0wn&UOfQm3blC03rF4
+```
+
+So the next step is to get that into our form and verify it to prove that the
+form was submitted using our app and not some other site. Let's go!

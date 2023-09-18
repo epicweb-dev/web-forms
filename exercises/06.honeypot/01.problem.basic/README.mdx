@@ -1,1 +1,18 @@
 # Basic Honeypot
+
+👨‍💼 When users sign up for an account on our app, we send a confirmation email.
+If spam bots submit random people's email addresses in there, we'll get marked
+as spam and our deliverability will be poor (emails we send won't get to where
+they're supposed to go).
+
+Kellie 🧝‍♂️ put together a new <LinkToApp to="/signup" /> route which accepts the
+user's email address. We need you to add a honeypot field to the form so we can
+detect bots and not send emails if that field is filled out.
+
+You just need to make sure that regular users don't accidentally fill the field
+out. It can be pretty basic, because many bots aren't very sophisticated. But
+we'll improve it later to deal with more sophisticated bots in the future.
+
+The form only actually redirects to `/` for right now. If the honeypot field is
+filled in then the `action` should return a 400 error response (you can use
+`invariantResponse` for this if you like).

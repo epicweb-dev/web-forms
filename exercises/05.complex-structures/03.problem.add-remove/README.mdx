@@ -49,7 +49,7 @@ function Example() {
 			))}
 
 			{/* Setup a button that can append a new row with optional default value */}
-			<button {...list.append(items.name, { defaultValue: '' })}>add</button>
+			<button {...list.insert(items.name, { defaultValue: '' })}>add</button>
 		</fieldset>
 	)
 }
@@ -79,4 +79,4 @@ Let's add a "❌" button to delete images and a "➕ Image" button to add new
 images.
 
 - [📜 Conform Intent Button](https://conform.guide/intent-button)
-- [📜 Conform Nested List](https://conform.guide/complex-structures#nested-list)
+- [📜 Conform Nested Array](https://conform.guide/complex-structures#nested-array)

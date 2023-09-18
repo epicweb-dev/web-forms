@@ -1,1 +1,46 @@
 # Remix Utils
+
+👨‍💼 We're going to use [`remix-utils`](https://npm.im/remix-utils) to put
+together the honeypot in the UI and check it in our `action`. This is going to
+require a bit of setup because it can do more than just handle the single field
+for us.
+
+First you're going to need to
+create <InlineFile file="app/utils/honeypot.server.ts" /> to create a honeypot
+instance. For example:
+
+```tsx nocopy
+import { Honeypot } from 'remix-utils/honeypot/server'
+
+export const honeypot = new Honeypot({
+	validFromFieldName: 'validFrom',
+	encryptionSeed: process.env.HONEY_POT_ENCRYPTION_SEED,
+	nameFieldName: 'name',
+	randomizeNameFieldName: true,
+})
+```
+
+We don't need all those options just yet though. In fact, for this first bit, we
+just want to set `validFromFieldName` to `null` for now. We'll get to the rest
+of the options later.
+
+Once you have that set up, you can use it in the
+`action` of <InlineFile file="app/routes/_auth+/signup.tsx" />. For example:
+
+```tsx nocopy
+try {
+	honeypot.check(formData)
+} catch (error) {
+	if (error instanceof SpamError) {
+		throw new Response('Form not submitted properly', { status: 400 })
+	}
+	throw error
+}
+```
+
+The `SpamError` comes from `remix-utils/honeypot/server`.
+
+And then for the UI, you can remove our custom `input` stuff with
+`<HoneypotInputs />` from `remix-utils/honeypot/react`.
+
+Good luck!
