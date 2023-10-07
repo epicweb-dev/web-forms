@@ -11,7 +11,7 @@ import { invariantResponse } from '#app/utils/misc.ts'
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
-	invariantResponse(formData.get('name'), 'Form not submitted properly')
+	invariantResponse(!formData.get('name'), 'Form not submitted properly')
 	// we'll implement signup later
 	return redirect('/')
 }
@@ -32,7 +32,7 @@ export default function SignupRoute() {
 				>
 					<div style={{ display: 'none' }} aria-hidden>
 						<label htmlFor="name-input">Please leave this field blank</label>
-						<input name="name" type="text" />
+						<input id="name-input" name="name" type="text" />
 					</div>
 					<div>
 						<Label htmlFor="email-input">Email</Label>

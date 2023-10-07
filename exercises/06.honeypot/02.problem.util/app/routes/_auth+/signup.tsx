@@ -12,7 +12,7 @@ import { invariantResponse } from '#app/utils/misc.ts'
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
 	// 🐨 swap this with honeypot.check(formData)
-	invariantResponse(formData.get('name'), 'Form not submitted properly')
+	invariantResponse(!formData.get('name'), 'Form not submitted properly')
 	// 💯 for extra credit, if there's a spam error, catch it and throw a 400 response
 	// we'll implement signup later
 	return redirect('/')
@@ -35,7 +35,7 @@ export default function SignupRoute() {
 					{/* 🐨 swap this for the HoneypotInputs component */}
 					<div style={{ display: 'none' }} aria-hidden>
 						<label htmlFor="name-input">Please leave this field blank</label>
-						<input name="name" type="text" />
+						<input id="name-input" name="name" type="text" />
 					</div>
 					<div>
 						<Label htmlFor="email-input">Email</Label>
