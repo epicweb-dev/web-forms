@@ -11,7 +11,7 @@ import { invariantResponse } from '#app/utils/misc.ts'
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
-	invariantResponse(formData.get('name'), 'Form not submitted properly')
+	invariantResponse(!formData.get('name'), 'Form not submitted properly')
 	// we'll implement signup later
 	return redirect('/')
 }

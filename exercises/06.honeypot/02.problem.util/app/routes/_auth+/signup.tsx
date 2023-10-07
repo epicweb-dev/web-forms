@@ -12,7 +12,7 @@ import { invariantResponse } from '#app/utils/misc.ts'
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
 	// 🐨 swap this with honeypot.check(formData)
-	invariantResponse(formData.get('name'), 'Form not submitted properly')
+	invariantResponse(!formData.get('name'), 'Form not submitted properly')
 	// 💯 for extra credit, if there's a spam error, catch it and throw a 400 response
 	// we'll implement signup later
 	return redirect('/')
