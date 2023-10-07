@@ -32,7 +32,7 @@ export default function SignupRoute() {
 				>
 					<div style={{ display: 'none' }} aria-hidden>
 						<label htmlFor="name-input">Please leave this field blank</label>
-						<input name="name" type="text" />
+						<input id="name-input" name="name" type="text" />
 					</div>
 					<div>
 						<Label htmlFor="email-input">Email</Label>
