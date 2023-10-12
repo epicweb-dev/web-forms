@@ -173,7 +173,7 @@ export default function NoteEdit() {
 									className="relative border-b-2 border-muted-foreground"
 								>
 									{/* 🐨 add a delete button here with list.remove and fields.images.name */}
-									{/* 💰 here's a nice className="absolute right-0 top-0 text-destructive" */}
+									{/* 💰 here's a nice className="text-foreground-destructive absolute right-0 top-0" */}
 									{/* 🐨 you can use "❌" as the button text (we don't have app icons yet) */}
 									{/* 💯 if you have extra time, consider the screen reader experience. How could you make it better? */}
 									<ImageChooser config={image} />
