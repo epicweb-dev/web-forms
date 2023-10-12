@@ -7,7 +7,7 @@ import { Form } from '@remix-run/react'
 import { Button } from '#app/components/ui/button.tsx'
 import { Input } from '#app/components/ui/input.tsx'
 import { Label } from '#app/components/ui/label.tsx'
-import { invariantResponse } from '#app/utils/misc.ts'
+import { invariantResponse } from '#app/utils/misc.tsx'
 
 export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
