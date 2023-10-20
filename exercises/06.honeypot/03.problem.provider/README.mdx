@@ -17,7 +17,9 @@ We'll know whether we're in a testing environment if `process.env.TESTING` is
 set. (That's set in <InlineFile file="index.js" />). If that's set, then just
 set the `validFromFieldName` to `null` and that will prevent remix-utils from
 including and checking for that field. Otherwise, you can set it to a string, or
-just use `undefined` to have the default value be used.
+just use `undefined` to have the default value be used. If you'd like to test
+out your work, you can comment out the `process.env.TESTING = 'true'` line in
+the <InlineFile file="index.js" /> file and restart the server.
 
 Another challenge will be is synchronizing our UI with our server config for the
 honeypot fields. So we need to update <InlineFile file="app/root.tsx" /> to
