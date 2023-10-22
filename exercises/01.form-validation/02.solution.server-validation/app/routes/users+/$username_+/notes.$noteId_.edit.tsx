@@ -83,7 +83,7 @@ function ErrorList({ errors }: { errors?: Array<string> | null }) {
 	return errors?.length ? (
 		<ul className="flex flex-col gap-1">
 			{errors.map((error, i) => (
-				<li key={i} className="text-[10px] text-foreground-danger">
+				<li key={i} className="text-[10px] text-foreground-destructive">
 					{error}
 				</li>
 			))}
