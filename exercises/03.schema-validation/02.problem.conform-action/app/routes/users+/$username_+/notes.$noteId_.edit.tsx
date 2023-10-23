@@ -46,8 +46,7 @@ export async function action({ request, params }: DataFunctionArgs) {
 	const formData = await request.formData()
 
 	// 🐨 swap this for parse from conform, passing the formData as the first argument
-	// 🐨 For the options, provide NoteEditorSchema as the "schema" and let's
-	// enable the multiple errors option with "acceptMultipleErrors: () => true"
+	// 🐨 For the options, provide NoteEditorSchema as the "schema"
 	// 🦉 it's common convention to call the variable assigned to the parse call "submission"
 	const result = NoteEditorSchema.safeParse({
 		title: formData.get('title'),
