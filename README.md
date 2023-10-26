@@ -1,5 +1,5 @@
 <div>
-  <h1 align="center"><a href="https://epicweb.dev">Professional Web Forms</a></h1>
+  <h1 align="center"><a href="https://www.epicweb.dev/workshops/professional-web-forms">Professional Web Forms</a></h1>
   <strong>
     Learn the primary mechanism for interactivity on the web.
   </strong>
