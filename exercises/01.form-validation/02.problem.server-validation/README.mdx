@@ -129,8 +129,10 @@ any errors returned from that in the form.
 
 <callout-danger>
 	To test out the server validation, you'll need to temporarily disable the form
-	validation. This is easily done by adding a `noValidate` attribute on the
-	form. We'll improve this next.
+	validation. Adding a `noValidate` attribute on the form allows you to submit it 
+	even if there are errors (such as an empty input field). Note that the other 
+	attributes will still be enforced by the browser, such as the `maxLength`. 
+	We'll improve this next.
 </callout-danger>
 
 Your emoji friends will guide you! Thanks!
