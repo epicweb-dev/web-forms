@@ -166,7 +166,7 @@ export default function NoteEdit() {
 							aria-invalid={contentHasErrors || undefined}
 							aria-describedby={contentErrorId}
 							// 💣 everything between here and the previous 💣 can be deleted
-							// 🐨 add {...conform.input(fields.content)} here
+							// 🐨 add {...conform.textarea(fields.content)} here
 						/>
 						<div className="min-h-[32px] px-4 pb-3 pt-1">
 							{/* 🐨 get the id from fields.content.errorId */}
