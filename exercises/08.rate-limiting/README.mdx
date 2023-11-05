@@ -45,11 +45,11 @@ import rateLimit from 'express-rate-limit'
 
 // When we're testing, we don't want rate limiting to get in our way. So, we'll
 // increase our rate limit thresholds.
-const maxMultiple = process.env.TESTING ? 10_000 : 1
+const limitMultiple = process.env.TESTING ? 10_000 : 1
 
 const rateLimitDefault = {
 	windowMs: 60 * 1000, // 1 minute
-	max: 1000 * maxMultiple, // Adjust the max based on our environment
+	limit: 1000 * limitMultiple, // Adjust the limit based on our environment
 	standardHeaders: true, // Send standard headers with limit information
 	legacyHeaders: false, // Don't bother sending legacy headers
 }
@@ -57,13 +57,13 @@ const rateLimitDefault = {
 // The most strict rate limit, great for routes like /signup
 const strongestRateLimit = rateLimit({
 	...rateLimitDefault,
-	max: 10 * maxMultiple,
+	limit: 10 * limitMultiple,
 })
 
 // A stricter rate limit for general POST requests
 const strongRateLimit = rateLimit({
 	...rateLimitDefault,
-	max: 100 * maxMultiple,
+	limit: 100 * limitMultiple,
 })
 
 // A general rate limit for our application
