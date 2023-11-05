@@ -211,7 +211,7 @@ function ImageChooser({
 				<div className="w-32">
 					<div className="relative h-32 w-32">
 						<label
-							// 🐨 update this htmlFor to reference fields.id.id
+							// 🐨 update this htmlFor to reference fields.file.id
 							htmlFor="image-input"
 							className={cn('group absolute h-32 w-32 rounded-lg', {
 								'bg-accent opacity-40 focus-within:opacity-100 hover:opacity-100':
