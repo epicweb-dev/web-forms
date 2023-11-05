@@ -264,7 +264,8 @@ function ImageChooser({
 								name="file"
 								type="file"
 								accept="image/*"
-								// 🐨 add the props from conform.input with the fields.file
+								// 🐨 add the props from conform.input with the fields.file with a {type: 'file'},
+								// otherwise it will be treated as a text input
 							/>
 						</label>
 					</div>
