@@ -89,6 +89,33 @@ able to code their bot specific to your protections.
 So the idea of a honeypot field is just to keep yourself out of the "low
 hanging fruit" category.
 
+As an example, on [my website](https://kentcdodds.com), I have honeypot fields
+implemented on my public fields and I log out when honeypot fields are filled
+in. Here's some logs I saw just today (as I write this):
+
+```
+FAILED HONEYPOT {
+	formId: 'newsletter',
+	firstName: '**********',
+	email: '***********@gmail.com',
+	convertKitTagId: '',
+	convertKitFormId: '827139',
+	url: 'Too MUCH'
+}
+POST kentcdodds.com/action/convert-kit 200 - 41.616 ms
+FAILED HONEYPOT ON LOGIN {
+	email: '***********@gmail.com',
+	password: '***********'
+}
+POST kentcdodds.com/login 200 - 34.213 ms
+```
+
+I'm using `url` for the honeypot field of the first form and `password` as the
+honeypot field for the second form (my site's login is passwordless). I've saved
+myself actual money (and improved my email deliverability) because of this
+feature so it's definitely one you'll want to implement for all your publicly
+facing forms.
+
 Remember, it's always a cat and mouse game between spammers and developers. As
 one side innovates, so does the other. Stay updated, and be ready to iterate on
 your solutions as the digital landscape evolves.
