@@ -239,7 +239,7 @@ function ImageChooser({
 							)}
 							{existingImage ? (
 								// 🐨 update this to use the conform.input helper on
-								// fields.image.id (make sure it stays hidden though)
+								// fields.id (make sure it stays hidden though)
 								<input name="imageId" type="hidden" value={image?.id} />
 							) : null}
 							<input
@@ -264,7 +264,8 @@ function ImageChooser({
 								name="file"
 								type="file"
 								accept="image/*"
-								// 🐨 add the props from conform.input with the fields.file
+								// 🐨 add the props from conform.input with the fields.file with a {type: 'file'},
+								// otherwise it will be treated as a text input
 							/>
 						</label>
 					</div>

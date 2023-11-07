@@ -12,7 +12,7 @@ encrypt the actual valid date and that's what the form is set to.
 To be able to decrypt the value, we need an encryption key. `remix-utils` will
 generate one for us if we don't set one ourselves. Unfortunately, there's a
 problem with doing things this way. The key is generated at startup time, so if
-you restart your server, or your running multiple instances of your app, a form
+you restart your server, or you're running multiple instances of your app, a form
 could be generated with one key and validated with another.
 
 So instead, we can set it to something consistent across all instances of our

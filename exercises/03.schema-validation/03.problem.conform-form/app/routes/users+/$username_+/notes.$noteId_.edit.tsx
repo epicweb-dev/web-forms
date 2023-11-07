@@ -93,7 +93,7 @@ export default function NoteEdit() {
 	const formId = 'note-editor'
 	const isSubmitting = useIsSubmitting()
 
-	// 💣 delete everthing between here and the next 💣
+	// 💣 delete everything between here and the next 💣
 	const fieldErrors =
 		actionData?.status === 'error' ? actionData.submission.error : null
 	const formErrors =
@@ -108,7 +108,7 @@ export default function NoteEdit() {
 	const contentErrorId = contentHasErrors ? 'content-error' : undefined
 
 	useFocusInvalid(formRef.current, actionData?.status === 'error')
-	// 💣 delete everthing between here and the previous 💣
+	// 💣 delete everything between here and the previous 💣
 	// Conform does a lot for us huh!? 🤯
 
 	// 🐨 add your useForm config here
