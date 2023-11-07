@@ -1,6 +1,10 @@
 import os from 'node:os'
 import { cssBundleHref } from '@remix-run/css-bundle'
-import { json, type LinksFunction } from '@remix-run/node'
+import {
+	type DataFunctionArgs,
+	json,
+	type LinksFunction,
+} from '@remix-run/node'
 import {
 	Link,
 	Links,
@@ -31,9 +35,9 @@ export const links: LinksFunction = () => {
 	].filter(Boolean)
 }
 
-export async function loader() {
+export async function loader({ request }: DataFunctionArgs) {
 	const honeyProps = honeypot.getInputProps()
-	const [csrfToken, csrfCookieHeader] = await csrf.commitToken()
+	const [csrfToken, csrfCookieHeader] = await csrf.commitToken(request)
 	return json(
 		{ username: os.userInfo().username, ENV: getEnv(), honeyProps, csrfToken },
 		{
