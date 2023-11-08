@@ -13,10 +13,6 @@ Give this a shot:
   and comment out the `<Scripts />` element there).
 - Reload the form page.
 - Remove the contents of the "Title" field.
-- Try to submit the form and notice the browser's native validation prevents you
-  from doing that. We had this already.
-- Let's simulate some backend-only validation by adding "novalidate" to the
-  `<form>`.
 - Now try to submit an invalid form.
 - Notice that the error shows up, and the title is still empty!
 
@@ -24,3 +20,7 @@ This should illustrate to you that we've successfully implemented progressive
 enhancement for this form. The user won't lose any work in the event the
 JavaScript fails to load. This is a very important aspect of accessibility.
 Huzzah!
+
+Note, the "losing work" argument isn't very strong for this field because its
+validation is so simple, but if we had a more complex field with more complex
+rules then this would be a welcome feature of our app!
