@@ -32,6 +32,12 @@ existing file. But we _do_ want to warn the user if they're going to try and
 upload a file that's too large, so for our `refine` call, we can just check that
 the `file.size` isn't too big.
 
+<callout-info class="aside">
+	Note: The `File` class is a browser API and not typically available in
+	Node.js. However Remix polyfills this for us (check out{' '}
+	<InlineFile file="index.js" /> where we use `installGlobals` from Remix).
+</callout-info>
+
 We'll get to actually _displaying_ errors later on.
 
 <callout-danger>
