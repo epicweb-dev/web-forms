@@ -54,7 +54,7 @@ export default function LoginForm() {
 					errors={fields.password.errors}
 				/>
 			</div>
-			<ErrorList id={fields.password.errorId} errors={form.errors} />
+			<ErrorList id={form.errorId} errors={form.errors} />
 			<button type="submit">Login</button>
 		</Form>
 	)
