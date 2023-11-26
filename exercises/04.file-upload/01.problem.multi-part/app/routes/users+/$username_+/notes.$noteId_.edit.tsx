@@ -208,7 +208,7 @@ function ImageChooser({
 									➕
 								</div>
 							)}
-							{/* 🐨 if there's an existing image, add a hidden input that with a name "imageId" and the value set to the image's id */}
+							{/* 🐨 if there's an existing image, add a hidden input with a name "imageId" and the value set to the image's id */}
 							<input
 								id="image-input"
 								aria-label="Image"
