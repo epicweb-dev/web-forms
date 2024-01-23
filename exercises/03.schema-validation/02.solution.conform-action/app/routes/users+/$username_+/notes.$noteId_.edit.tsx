@@ -103,7 +103,10 @@ export default function NoteEdit() {
 	const contentHasErrors = Boolean(fieldErrors?.content?.length)
 	const contentErrorId = contentHasErrors ? 'content-error' : undefined
 
-	useFocusInvalid(formRef.current, actionData?.status === 'error')
+	useFocusInvalid(
+		formRef.current,
+		actionData?.status === 'error' && !isSubmitting,
+	)
 
 	return (
 		<div className="absolute inset-0">
