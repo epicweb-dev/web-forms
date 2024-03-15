@@ -8,8 +8,17 @@ specific fields and it knows which fields are invalid thanks to
 non-screen reader users) navigate more efficiently to the field that has an
 error, so let's do that next.
 
-
 <callout-info class="aside">
-	Note: Including `aria-invalid="false"` is actually recommended over not including it at all. When `aria-invalid="false"` is explicitly provided, it ensures that the screen reader conveys to the user that the input is valid, which can help in reducing confusion and providing clear feedback. Some screen readers might interpret the absence of `aria-invalid` as an indication that the validity is unknown and may not provide any specific feedback regarding validation errors or validity status. Others might infer the validity based on other cues in the document, such as HTML5 validation attributes (required, pattern, etc.) or contextual clues, but this behavior isn't guaranteed across all screen readers.
-	
+	Note: Including `aria-invalid="false"` is actually recommended over not
+	including it at all. When `aria-invalid="false"` is explicitly provided, it
+	ensures that the screen reader conveys to the user that the input is valid,
+	which can help in reducing confusion and providing clear feedback. Some screen
+	readers might interpret the absence of `aria-invalid` as an indication that
+	the validity is unknown and may not provide any specific feedback regarding
+	validation errors or validity status. Others might infer the validity based on
+	other cues in the document, such as HTML5 validation attributes (required,
+	pattern, etc.) or contextual clues, but this behavior isn't guaranteed across
+	all screen readers. Screen readers are definitely at the level of consistency
+	with one other that browsers were in the early 2000s 😱 so it's a challenge to
+	keep up with all the nuances.
 </callout-info>
