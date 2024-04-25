@@ -1,9 +1,9 @@
 // Ignore this file please
-import { KCDShopIFrameSync } from '@kentcdodds/workshop-utils/iframe-sync'
+import { EpicShopIFrameSync } from '@epic-web/workshop-utils/iframe-sync'
 import { useNavigate } from '@remix-run/react'
 import * as React from 'react'
 
-export function KCDShop() {
+export function EpicShop() {
 	const navigate = useNavigate()
-	return <KCDShopIFrameSync React={React} navigate={navigate} />
+	return <EpicShopIFrameSync React={React} navigate={navigate} />
 }
