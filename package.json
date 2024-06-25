@@ -3,9 +3,15 @@
   "private": true,
   "epicshop": {
     "title": "Professional Web Forms 📝",
+    "subtitle": "Learn the primary mechanism for interactivity on the web.",
     "githubRoot": "https://github.com/epicweb-dev/web-forms/blob/main",
     "root": true,
-    "epicWorkshopSlug": "professional-web-forms"
+    "epicWorkshopSlug": "professional-web-forms",
+    "instructor": {
+      "name": "Kent C. Dodds",
+      "avatar": "/images/instructor.png",
+      "𝕏": "kentcdodds"
+    }
   },
   "type": "module",
   "scripts": {
