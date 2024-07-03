@@ -1,4 +1,9 @@
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import {
+	json,
+	redirect,
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+} from '@remix-run/node'
 import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -16,7 +21,7 @@ import {
 	useIsSubmitting,
 } from '#app/utils/misc.tsx'
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
 	const note = db.note.findFirst({
 		where: {
 			id: {
@@ -40,7 +45,7 @@ const NoteEditorSchema = z.object({
 	content: z.string().max(contentMaxLength),
 })
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
 	invariantResponse(params.noteId, 'noteId param is required')
 
 	const formData = await request.formData()

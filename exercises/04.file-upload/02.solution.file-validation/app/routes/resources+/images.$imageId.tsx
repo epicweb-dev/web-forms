@@ -2,12 +2,12 @@ import fs from 'node:fs'
 import { PassThrough } from 'node:stream'
 import {
 	createReadableStreamFromReadable,
-	type DataFunctionArgs,
+	type LoaderFunctionArgs,
 } from '@remix-run/node'
 import { db } from '#app/utils/db.server.ts'
 import { invariantResponse } from '#app/utils/misc.tsx'
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
 	invariantResponse(params.imageId, 'Invalid image ID')
 	const image = db.image.findFirst({
 		where: { id: { equals: params.imageId } },

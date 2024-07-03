@@ -1,4 +1,9 @@
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import {
+	json,
+	redirect,
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+} from '@remix-run/node'
 import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 import { GeneralErrorBoundary } from '#app/components/error-boundary.tsx'
@@ -15,7 +20,7 @@ import {
 	useIsSubmitting,
 } from '#app/utils/misc.tsx'
 
-export async function loader({ params }: DataFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
 	const note = db.note.findFirst({
 		where: {
 			id: {
@@ -47,7 +52,7 @@ const contentMaxLength = 10000
 // 🐨 Create a schema called NoteEditorSchema which is an object and has
 // the title and content fields. You'll use string, min, and max.
 
-export async function action({ request, params }: DataFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
 	invariantResponse(params.noteId, 'noteId param is required')
 
 	const formData = await request.formData()

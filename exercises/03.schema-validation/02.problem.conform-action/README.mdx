@@ -23,7 +23,7 @@ const LoginSchema = z.object({
 	password: z.string({ required_error: 'Password is required' }),
 })
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
 	const submission = parse(formData, {
 		schema: LoginSchema,

@@ -14,7 +14,7 @@ very similar to `useLoaderData` with the exception that it will return
 `undefined` until the `action` has been called. Here's an example of that:
 
 ```tsx filename=app/routes/subscribe.tsx lines=2,4-9,15-36,44,46-49,56-62
-import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
+import { json, redirect, type ActionFunctionArgs } from '@remix-run/node'
 import { useActionData } from '@remix-run/react'
 
 type ActionErrors = {
@@ -24,7 +24,7 @@ type ActionErrors = {
 	}
 }
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
 	const email = formData.get('email')
 

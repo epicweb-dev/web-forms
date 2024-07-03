@@ -1,6 +1,6 @@
 import {
 	redirect,
-	type DataFunctionArgs,
+	type ActionFunctionArgs,
 	type MetaFunction,
 } from '@remix-run/node'
 import { Form } from '@remix-run/react'
@@ -9,7 +9,7 @@ import { Input } from '#app/components/ui/input.tsx'
 import { Label } from '#app/components/ui/label.tsx'
 import { invariantResponse } from '#app/utils/misc.tsx'
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
 	// 🐨 swap this with honeypot.check(formData)
 	invariantResponse(!formData.get('name'), 'Form not submitted properly')

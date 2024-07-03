@@ -1,6 +1,6 @@
 import {
 	redirect,
-	type DataFunctionArgs,
+	type ActionFunctionArgs,
 	type MetaFunction,
 } from '@remix-run/node'
 import { Form } from '@remix-run/react'
@@ -8,7 +8,7 @@ import { Button } from '#app/components/ui/button.tsx'
 import { Input } from '#app/components/ui/input.tsx'
 import { Label } from '#app/components/ui/label.tsx'
 
-export async function action({ request }: DataFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
 	// 💣 you can remove this comment once you've used the form data
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const formData = await request.formData()
