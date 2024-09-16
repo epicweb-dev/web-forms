@@ -5,8 +5,19 @@
     "title": "Professional Web Forms 📝",
     "subtitle": "Learn the primary mechanism for interactivity on the web.",
     "githubRoot": "https://github.com/epicweb-dev/web-forms/blob/main",
-    "root": true,
-    "epicWorkshopSlug": "professional-web-forms",
+    "product": {
+      "host": "www.epicweb.dev",
+      "slug": "professional-web-forms",
+      "displayName": "EpicWeb.dev",
+      "displayNameShort": "Epic Web",
+      "logo": "/logo.svg",
+      "discordChannelId": "1161045224907341972",
+      "discordTags": [
+        "1161046174439063593",
+        "1161045873858449580"
+      ]
+    },
+    "onboardingVideo": "https://www.epicweb.dev/tips/get-started-with-the-epic-workshop-app",
     "instructor": {
       "name": "Kent C. Dodds",
       "avatar": "/images/instructor.png",
