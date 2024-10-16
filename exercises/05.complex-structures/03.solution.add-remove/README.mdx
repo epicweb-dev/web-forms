@@ -13,12 +13,24 @@ implemented in my solution:
 <details>
 <summary>Spoiler alert!</summary>
 
-<CodeFile
-	file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx"
-	range="180-186,192-198"
-	highlight="184-185,196-197"
-	buttons="solution"
-/>
+```tsx start=181 lines=185-186
+<button
+	className="text-foreground-destructive absolute right-0 top-0"
+	{...list.remove(fields.images.name, { index })}
+>
+	<span aria-hidden>❌</span>{' '}
+	<span className="sr-only">Remove image {index + 1}</span>
+</button>
+```
+
+```tsx start=193 lines=197
+<Button
+	className="mt-3"
+	{...list.insert(fields.images.name, { defaultValue: {} })}
+>
+	<span aria-hidden>➕ Image</span> <span className="sr-only">Add image</span>
+</Button>
+```
 
 </details>
 

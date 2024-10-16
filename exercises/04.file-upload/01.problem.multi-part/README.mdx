@@ -21,11 +21,27 @@ You'll find it at the bottom
 of <InlineFile file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx" line="182" />.
 I also updated the loader to load the note's images if it already has images:
 
-<CodeFile
-	file="app/routes/users+/$username_+/notes.$noteId_.edit.tsx"
-	range="17-35"
-	highlight="32"
-/>
+```tsx start=22 lines=37
+export async function loader({ params }: LoaderFunctionArgs) {
+	const note = db.note.findFirst({
+		where: {
+			id: {
+				equals: params.noteId,
+			},
+		},
+	})
+	if (!note) {
+		throw new Response('Note not found', { status: 404 })
+	}
+	return json({
+		note: {
+			title: note.title,
+			content: note.content,
+			images: note.images.map(i => ({ id: i.id, altText: i.altText })),
+		},
+	})
+}
+```
 
 So you can use that to preload the images for the note if it already has images
 when the user goes to edit the note.
