@@ -169,6 +169,7 @@ export async function updateNote({
 						id,
 						filepath,
 						altText: image.altText,
+						contentType: image?.file?.type,
 					},
 				})
 			} else if (image.file) {
