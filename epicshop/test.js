@@ -48,7 +48,7 @@ for (const app of [...solutionApps, ...extraApps]) {
 
 	console.log(`🧪  Running "${app.test.script}" in ${relativePath}`)
 
-	const cp = spawn('npm', ['run', app.test.script, '--silent'], {
+	const cp = spawn('npm', ['run', 'test', '--silent'], {
 		cwd: app.fullPath,
 		stdio: 'inherit',
 		shell: true,
