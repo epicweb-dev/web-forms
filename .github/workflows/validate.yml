@@ -83,10 +83,14 @@ jobs:
         run: npm ci
 
       - name: 📥 Install Playwright browser
-        run: npx playwright install chromium --with-deps
+        run: npx playwright install chromium --with-deps --only-shell
 
       # Workshops ship epicshop/test.js (not .ts). `..s` runs solution apps only.
       - name: 🧪 Run solution tests
+        env:
+          # These legacy exercise configs require prebuilt production bundles
+          # when CI is truthy. Use their development servers for smoke tests.
+          CI: ''
         run: |
           set -euo pipefail
           if [ -f ./epicshop/test.js ]; then
