@@ -38,6 +38,9 @@ process.env.NODE_ENV = 'development'
 const apps = await getApps()
 const solutionApps = apps.filter(isSolutionApp)
 const extraApps = apps.filter(isExtraApp)
+const additionalArgsIndex = process.argv.indexOf('--')
+const additionalArgs =
+	additionalArgsIndex === -1 ? [] : process.argv.slice(additionalArgsIndex + 1)
 
 let exitCode = 0
 
@@ -48,17 +51,21 @@ for (const app of [...solutionApps, ...extraApps]) {
 
 	console.log(`🧪  Running "${app.test.script}" in ${relativePath}`)
 
-	const cp = spawn('npm', ['run', 'test', '--silent'], {
-		cwd: app.fullPath,
-		stdio: 'inherit',
-		shell: true,
-		windowsHide: false,
-		env: {
-			OPEN_PLAYWRIGHT_REPORT: 'never',
-			...process.env,
-			PORT: app.dev.portNumber,
+	const cp = spawn(
+		'npm',
+		['run', 'test', '--silent', '--', ...additionalArgs],
+		{
+			cwd: app.fullPath,
+			stdio: 'inherit',
+			shell: true,
+			windowsHide: false,
+			env: {
+				OPEN_PLAYWRIGHT_REPORT: 'never',
+				...process.env,
+				PORT: app.dev.portNumber,
+			},
 		},
-	})
+	)
 
 	await new Promise(res => {
 		cp.on('exit', code => {
