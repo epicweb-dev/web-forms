@@ -69,6 +69,8 @@ jobs:
       - name: ⬣ Lint
         run: npm run lint
         working-directory: ./workshop
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
 
   tests:
     name: 🧪 Test
@@ -86,13 +88,33 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      # The committed browser assertions are legacy workshop content, so validate
-      # test discovery and Playwright configs without executing those assertions.
-      - name: 🧪 Validate solution tests
+      - name: 🎭 Install Playwright browser
+        if: ${{ hashFiles('epicshop/test.js') != '' }}
+        run: npx playwright install --with-deps chromium
+
+      - name: ◭ Generate Prisma clients
+        if: ${{ hashFiles('epicshop/test.js') != '' }}
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          schemas=(./exercises/**/*.solution.*/prisma/schema.prisma)
+          if [ "${#schemas[@]}" -eq 0 ]; then
+            echo "No solution-app Prisma schemas found; skipping Prisma client generation."
+            exit 0
+          fi
+          for schema in "${schemas[@]}"; do
+            app_dir="${schema%/prisma/schema.prisma}"
+            echo "::group::prisma generate in ${app_dir}"
+            (cd "$app_dir" && npx prisma generate)
+            echo "::endgroup::"
+          done
+
+      # Workshops ship epicshop/test.js (not .ts). `..s` runs solution apps only.
+      - name: 🧪 Run solution tests
         run: |
           set -euo pipefail
           if [ -f ./epicshop/test.js ]; then
-            node ./epicshop/test.js ..s -- --list
+            node ./epicshop/test.js ..s
           else
             echo "No epicshop/test.js in this workshop; skipping solution-app test runner."
           fi
